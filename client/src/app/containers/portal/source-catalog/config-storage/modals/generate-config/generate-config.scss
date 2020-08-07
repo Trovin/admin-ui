@@ -1,0 +1,25 @@
+.modal-body {
+	min-height: 390px;
+	justify-content: center;
+	overflow: hidden;
+}
+
+.loading-preview {
+	font-size: 100px;
+}
+
+.config-report {
+	height: 200px;
+	overflow-y: auto;
+	white-space: pre-line;
+}
+
+.animate {
+	opacity: 1;
+	animation: .6s fadeIn;
+}
+
+@keyframes fadeIn {
+	0% { opacity: 0; }
+	100% { opacity: 1; }
+}

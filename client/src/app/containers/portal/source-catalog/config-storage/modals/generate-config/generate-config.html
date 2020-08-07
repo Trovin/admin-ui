@@ -1,0 +1,158 @@
+<div class="modal-header d-flex flex-row align-items-top">
+	<h4 class="modal-title">
+		<span *ngIf="showFirstStep && !submitted">
+			<span class="mr-3">Generate draft config data</span>
+
+			<button
+				*ngIf="configStatus"
+				type="button"
+				class="btn btn-primary"
+				(click)="next()">
+				<i class="fa fa-angle-right mr-1" aria-hidden="true"></i>
+				next step
+			</button>
+		</span>
+
+		<span
+			*ngIf="!showFirstStep && !submitted"
+			class="animate">
+			<span class="mr-3">Complete</span>
+
+			<button
+				type="button"
+				class="btn btn-primary"
+				(click)="prev()">
+				<i class="fa fa-angle-left mr-1" aria-hidden="true"></i>
+				prev step
+			</button>
+		</span>
+
+		<span *ngIf="submitted">Loading...</span>
+	</h4>
+
+	<button
+		type="button"
+		class="close pull-right"
+		(click)="closeModal()">
+
+		<i
+			class="fa fa-times"
+			[ngClass]="{
+				'fa-times': !submitted,
+				'fa-pulse fa-spinner fa-spin': submitted && showSecondStep
+			}">
+		</i>
+	</button>
+</div>
+
+<div class="modal-body d-flex flex-column full-width">
+	<form
+		*ngIf="showFirstStep"
+		class="animate"
+		[formGroup]="form"
+		(ngSubmit)="submit()">
+
+		<div class="form-group d-flex flex-column">
+			<label>
+				<b>Schema Name</b>
+				<input
+					type="text"
+					title="required field"
+					class="form-control"
+					[class.is-invalid]="form.get('schemaName').touched && form.get('schemaName').errors"
+					formControlName="schemaName">
+			</label>
+			<form-message [control]="form.get('schemaName')"></form-message>
+		</div>
+
+		<div class="form-group d-flex flex-column">
+			<label>
+				<b>Table name</b>
+				<input
+					type="text"
+					title="required field"
+					class="form-control"
+					[class.is-invalid]="form.get('tableName').touched && form.get('tableName').errors"
+					formControlName="tableName">
+			</label>
+			<form-message [control]="form.get('tableName')"></form-message>
+		</div>
+
+		<div class="form-group d-flex flex-column">
+			<label>
+				<b>Root event</b>
+				<input
+					type="text"
+					title="optional field"
+					class="form-control"
+					[formControl]="form.controls['parentEntityName']">
+			</label>
+		</div>
+
+		<button
+			type="submit"
+			class="btn btn-primary mt-3 mb-1"
+			[disabled]="submitted">
+
+			Apply
+		</button>
+	</form>
+
+	<div
+		*ngIf="submitted && !showSecondStep"
+		class="animate loading-preview text-center">
+		<i class="fa fa-pulse fa-spinner fa-spin"></i>
+	</div>
+
+
+	<div
+		*ngIf="configStatus && showSecondStep"
+		class="animate">
+		<div class="text-center mb-2">
+			<h5>
+				Status:
+				<span
+					[ngClass]="{
+				'mb-1 text-success': configStatus === configStatusEnum.SUCCESS,
+				'mb-1 text-danger': configStatus === configStatusEnum.FAILED,
+				'mb-1 text-warning': configStatus === configStatusEnum.PARTIAL
+				}">
+				{{configStatus}}
+			</span>
+			</h5>
+			<div
+				*ngIf="configStatus === 'SUCCESS'">
+				The draft config is generated successfully. You can download CSV and SQL:
+			</div>
+		</div>
+		<div class="d-flex">
+			<div class="col-6 mt-2 mb-2 text-center">
+				<button
+					*ngIf="csvData?.key"
+					class="btn btn-primary btn-sm p-2 mr-2 border-none"
+					title="Download as CSV"
+					(click)="saveCsvFile(csvData, csvFile)">
+
+					<i class="fa fa-download fa-lg mr-2"></i>
+					<span class="small">Download CSV</span>
+				</button>
+			</div>
+			<div class="col-6 mt-2 mb-2 text-center">
+				<button
+					*ngIf="sqlData?.key"
+					class="btn btn-primary btn-sm p-2 mr-2 border-none"
+					title="Download as CSV"
+					(click)="saveSqlFile(sqlData, sqlFile)">
+
+					<i class="fa fa-download fa-lg mr-2"></i>
+					<span class="small">Download SQL</span>
+				</button>
+			</div>
+		</div>
+		<div
+			*ngIf="configReport"
+			class="config-report mt-2 pt-1 pb-1 border">
+			<p class="p-2">{{configReport}}</p>
+		</div>
+	</div>
+</div>

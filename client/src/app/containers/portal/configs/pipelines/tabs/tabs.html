@@ -1,0 +1,85 @@
+<page-header
+	class="block mb-4"
+	title="Pipelines Configurations"
+	linkToWiki="https://wiki.go.akamai-access.com/display/BI/Pipelines+Configurations">
+
+	<ng-template #pageHeaderSubTitle>
+		This page allows to configure Batch data app and Redshift data copy app by uploading and executing config files.
+	</ng-template>
+</page-header>
+
+<div class="d-flex flex-column align-self-center mb-4">
+	<p [class.d-none]="processType.getAlias(processType.REDSHIFT) !== process">
+		Redshift Config Generator:
+		<a
+			e2e="galaxy-redshift-config-gen-tool"
+			[routerLink]="['/portal', 'tools', 'redshift-config-generator']">
+
+			galaxy-redshift-config-gen-tool
+		</a>
+	</p>
+	<p>
+		S3 location:
+		<a
+			e2e="s3-location"
+			[href]="composeS3Url(bucketName + '/' + process + '-dataconfig/')"
+			target="_blank">
+
+			{{bucketName}}/{{process}}-dataconfig
+		</a>
+	</p>
+
+	<p>
+		Wiki:
+		<a
+			href="https://wiki.go.akamai-access.com/display/BI/Pipelines+Configurations" 
+			target="_blank"
+			[class.d-none]="processType.getAlias(processType.REDSHIFT) !== process">
+			
+			Redshift mapping configuration
+		</a>
+	
+		<a 
+			href="https://wiki.go.akamai-access.com/display/BI/Batch+file+Configuration+-+File+Format"
+			target="_blank"
+			[class.d-none]="processType.getAlias(processType.BATCH) !== process">
+	
+			Batch file Configuration
+		</a>
+	</p>
+</div>
+
+<ul
+	role="tablist"
+	class="nav nav-tabs mb-3 text-center">
+
+	<li class="nav-item">
+		<a
+			e2e="batch-tab"
+			role="tab"
+			class="nav-link"
+			href="javascript:void(0)"
+			routerLink="batch"
+			routerLinkActive="active"
+			(click)="changeTab('batch')">
+
+			Batch
+		</a>
+	</li>
+
+	<li class="nav-item">
+		<a
+			e2e="redshift-tab"
+			role="tab"
+			class="nav-link"
+			href="javascript:void(0)"
+			routerLink="redshift"
+			routerLinkActive="active"
+			(click)="changeTab('redshift')">
+
+			Redshift
+		</a>
+	</li>
+</ul>
+
+<router-outlet></router-outlet>

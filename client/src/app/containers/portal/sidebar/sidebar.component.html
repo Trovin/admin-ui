@@ -1,0 +1,112 @@
+<div
+	class="dropdown-select-backdrop sidebar-backdrop"
+	[class.open]="open"
+	(click)="toggleSidebar(true)">
+</div>
+
+<div
+	e2e="sidebar"
+	class="sidebar">
+	<div
+		e2e="sidebar-header"
+		class="sidebar-header">
+		<div class="logo-wrap align-items-center d-flex justify-content-center m-0">
+			<a
+				e2e="sidebar-logo"
+				href="{{host + '/public'}}"
+				class="logo text-center navbar-brand navbar-text d-flex align-items-center m-0 p-0">
+
+				<span class="logo-img-wrap">
+					<img src="./../../../../assets/i/logo-public.png" class="logo img-responsive"/>
+				</span>
+				<span
+					*ngIf="open"
+					class="brand-text">
+
+					Galaxy
+				</span>
+			</a>
+		</div>
+	</div>
+
+	<ul
+		e2e="sidebar-menu"
+		class="sidebar-menu">
+
+		<ng-container *ngFor="let section of sections;">
+			<li
+				*ngIf="!section.hide"
+				class="sidebar-menu-item d-flex flex-column align-items-start"
+				[class.no-child]="!section.children.length"
+				[class.active]="section.active"
+				[class.collapsed]="!section.opened">
+
+				<a
+					*ngIf="section.internal && !section.children.length && !section.hide"
+					[routerLink]="section.href"
+					routerLinkActive="active-link"
+					class="sidebar-menu-item-link d-flex align-items-center w-100"
+					[class.flex-column]="!open">
+
+					<i [class]="'fa ' + section.icon"></i>
+					<span class="hyphenate-text">
+						{{section.title}}
+					</span>
+				</a>
+
+				<a
+					*ngIf="!section.internal && !section.children.length && !section.hide"
+					target="_self"
+					href="{{section.href}}"
+					class="sidebar-menu-item-link d-flex align-items-center w-100"
+					[class.flex-column]="!open">
+
+					<i [class]="'fa ' + section.icon"></i>
+					<span class="hyphenate-text">
+						{{section.title}}
+					</span>
+				</a>
+
+				<span
+					*ngIf="section.internal && section.children.length && !section.hide"
+					class="sidebar-menu-item-link d-flex align-items-center w-100"
+					[class.flex-column]="!open"
+					(click)="collapse(section, $event)">
+
+					<i [class]="'fa ' + section.icon"></i>
+					<span class="hyphenate-text">
+						{{section.title}}
+					</span>
+				</span>
+
+				<ul
+					e2e="sidebar-submenu"
+					*ngIf="open && section.children.length && section.opened"
+					class="sidebar-submenu w-100">
+
+					<ng-container *ngFor="let child of section.children">
+						<li *ngIf="!child.hide">
+							<a
+								*ngIf="child.internal"
+								class="sidebar-submenu-item-link hyphenate-text"
+								[routerLink]="child.href"
+								routerLinkActive="active">
+
+								{{child.title}}
+							</a>
+
+							<a
+								*ngIf="!child.internal"
+								target="_blank"
+								href="{{child.href}}"
+								class="sidebar-submenu-item-link hyphenate-text">
+
+								{{child.title}}
+							</a>
+						</li>
+					</ng-container>
+				</ul>
+			</li>
+		</ng-container>
+	</ul>
+</div>

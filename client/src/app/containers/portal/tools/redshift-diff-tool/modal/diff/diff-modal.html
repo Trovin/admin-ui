@@ -1,0 +1,51 @@
+<div class="modal-header d-flex justify-content-between">
+	<div>
+		<p><b>Schema Name:</b> {{schema}}</p>
+		<p><b>Table Name:</b> {{table}}</p>
+	</div>
+
+	<button
+		type="button"
+		class="close pull-right"
+		data-dismiss="alert"
+		aria-label="Close"
+		(click)="bsModalRef.hide()">
+
+		<i
+			e2e="close-icon"
+			class="fa fa-times fa-2x"></i>
+	</button>
+</div>
+
+<div class="modal-body h-100 text-center">
+	<div *ngIf="loading">
+		<div
+			e2e="loading-shade"
+			class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<ng-template
+		[ngIf]="hasDifferences"
+		[ngIfElse]="elseBlock">
+
+		<diff-tool
+			class="block inherit-height"
+			[originalText]="originalText"
+			[secondaryText]="secondaryText"
+			[originalTitle]="'Integration'"
+			[secondaryTitle]="'Production'"
+			[diffTitle]="'Diff'">
+		</diff-tool>
+	</ng-template>
+	<ng-template #elseBlock>
+		<diff-tool
+			class="block inherit-height"
+			[originalText]="originalText"
+			[originalTitle]="'Integration/Production'">
+		</diff-tool>
+	</ng-template>
+</div>

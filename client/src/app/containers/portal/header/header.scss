@@ -1,0 +1,44 @@
+$header-bg: rgb(197, 217, 217);
+
+$header-height: 3.25rem;
+$sidebar-width: 14.375rem;
+$sidebar-collapsed-width: 4.6875rem;
+
+.portal-header {
+	position: fixed;
+	height: $header-height;
+	width: 100%;
+	background-color: $header-bg;
+	padding: 0rem 1rem;
+	z-index: 10;
+
+	a {
+		color: rgb(55, 71, 79);
+	}
+}
+
+.nav-header .navbar-toggler {
+	line-height: 52px;
+	border-radius: 0;
+	border: none;
+	outline: none;
+
+	&:hover {
+		background-color: rgba(187, 208, 208, 0.5);
+		transition: all .15s ease;
+	}
+}
+
+@media (min-width: 960px) {
+	:host-context(.open + .portal-content-wrap) .portal-header {
+		width: calc(100% - #{$sidebar-width});
+	}
+
+	.portal-header {
+		width: calc(100% - #{$sidebar-collapsed-width});
+
+		.toggle-sidebar-btn {
+			cursor: pointer;
+		}
+	}
+}

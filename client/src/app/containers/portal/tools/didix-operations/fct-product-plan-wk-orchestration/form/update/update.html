@@ -1,0 +1,324 @@
+<div>
+	<button
+		type="button"
+		class="btn btn-outline-dark border-none mb-3"
+		title="Back to Source catalog"
+		(click)="goToBack()">
+
+		<i class="fa fa-arrow-left fa-lg"></i>
+		<span class="inline-block ml-2">Go back</span>
+	</button>
+</div>
+
+<page-header
+	class="block mb-4"
+	title="Maintain Planning">
+
+	<ng-template #pageHeaderSubTitle>
+		<p class="m-0 bg-light p-1 border radius rounded text-dark small">
+			<i class="fa fa-info-circle p-1" aria-hidden="true"></i>
+			Your updates on this page will be saved in database within a time up to 5 minutes, and the update will be reflected on this page within a time up to 10 minutes.
+		</p>
+	</ng-template>
+</page-header>
+
+<div class="d-flex flex-column flex-xl-row">
+	<div class="col-6">
+		<h5>
+			Planned Sales for {{productName}} in {{currency}} {{fiscalYearId}} table
+
+			<button
+				type="button"
+				class="btn btn-default border-none pt-1 pb-1"
+				title="Refresh"
+				[disabled]="loading"
+				(click)="initProductsPlans()">
+
+				<i
+					e2e="refresh"
+					class="fa fa-refresh"
+					[class.fa-spin]="loading">
+				</i>
+			</button>
+		</h5>
+		<p
+			*ngIf="fiscalYearId < currentYear"
+			class="text-danger">Editing for past fiscal year is not allowed</p>
+
+		<div class="table-responsive relative pt-2">
+			<div *ngIf="loading">
+				<div
+					e2e="loading-shade"
+					class="bhn-loading-shade">
+					<i
+						e2e="loader"
+						class="fa fa-pulse fa-spinner fa-2x"></i>
+				</div>
+			</div>
+
+			<table
+				e2e="products-plan"
+				class="table table-sm table-hover table-bordered">
+
+					<thead>
+						<tr>
+							<th scope="col"></th>
+							<th scope="col"></th>
+							<th scope="col" class="text-right">Plan</th>
+							<th scope="col" class="text-right">Target</th>
+							<th scope="col" class="text-center">Actions</th>
+						</tr>
+					</thead>
+
+					<tbody
+						*ngFor="let item of items; let index = index"
+						e2e="products-plan-row"
+
+						class="table-row-group">
+
+					<tr>
+						<th [attr.rowspan]="item.columns.length + 1">{{item.row.periodId}}</th>
+					</tr>
+
+					<tr *ngFor="let item of item.columns; let subIndex = index">
+						<td class="align-middle">
+							{{item.weekId}}
+						</td>
+
+						<td class="align-middle text-right">
+							{{item.planAmount | number}}
+						</td>
+
+						<td class="align-middle text-right">
+							{{item.targetAmount | number}}
+						</td>
+
+						<td class="text-center">
+							<div class="btn-group">
+								<button
+									e2e="apply"
+									type="button"
+									[disabled]="fiscalYearId < currentYear"
+									class="btn btn-success btn-xs"
+									(click)="openUpdateModal(index, subIndex, item)">
+
+									Edit
+								</button>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+
+				<tbody
+					*ngIf="items && items.length"
+					class="bg-light">
+
+					<tr>
+						<td></td>
+						<td></td>
+						<td class="text-right"><b>{{productsPlansPlanAmountTotalCount | number}}</b></td>
+						<td class="text-right"><b>{{productsPlansTargetAmountTotalCount | number}}</b></td>
+						<td></td>
+					</tr>
+				</tbody>
+
+				<tbody *ngIf="items && !items.length">
+					<tr>
+						<td
+							e2e="no-data"
+							colspan="10">
+							No data.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="col-6">
+		<h5>
+			Actual Sales for {{productName}} in {{currency}} {{fiscalYearId - 1}} table
+
+			<button
+				type="button"
+				class="btn btn-default border-none pt-1 pb-1"
+				title="Refresh"
+				[disabled]="loadingActualSales"
+				(click)="initActualSales()">
+
+				<i
+					e2e="refresh"
+					class="fa fa-refresh"
+					[class.fa-spin]="loadingActualSales">
+				</i>
+			</button>
+		</h5>
+		<div class="table-responsive relative pt-2">
+			<div *ngIf="loadingActualSales">
+				<div
+					e2e="loading-shade"
+					class="bhn-loading-shade">
+					<i
+						e2e="loader"
+						class="fa fa-pulse fa-spinner fa-2x"></i>
+				</div>
+			</div>
+
+			<table
+				e2e="actual-sales"
+				class="table table-sm table-hover table-bordered pt-2 pb-2">
+
+				<tbody
+					*ngFor="let item of actualSales"
+					e2e="actual-sales-row"
+					class="table-row-group">
+
+					<tr>
+						<th [attr.rowspan]="item.columns.length + 1">{{item.row.periodId}}</th>
+					</tr>
+
+					<tr *ngFor="let item of item.columns">
+						<td class="align-middle">
+
+							{{item.weekId}}
+						</td>
+
+						<td class="align-middle text-right">
+							{{item.salesAmount | number}}
+						</td>
+					</tr>
+				</tbody>
+
+				<tbody
+					*ngIf="actualSales && actualSales.length"
+					class="bg-light">
+
+					<tr>
+						<td></td>
+						<td></td>
+						<td class="text-right"><b>{{actualSalesTotalCount | number}}</b></td>
+					</tr>
+				</tbody>
+
+				<tbody *ngIf="actualSales && !actualSales.length">
+					<tr>
+						<td
+							e2e="no-data"
+							colspan="10">
+							No data.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<div class="border-top mt-4 pt-4">
+	<h5>
+		History
+
+		<button
+			type="button"
+			class="btn btn-default border-none pt-1 pb-1"
+			title="Refresh"
+			[disabled]="loadingHistory"
+			(click)="initHistory()">
+
+			<i
+				e2e="refresh"
+				class="fa fa-refresh"
+				[class.fa-spin]="loadingHistory">
+			</i>
+		</button>
+	</h5>
+
+	<div class="table-responsive relative pt-2">
+		<div *ngIf="loadingHistory">
+			<div
+				e2e="loading-shade"
+				class="bhn-loading-shade">
+				<i
+					e2e="loader"
+					class="fa fa-pulse fa-spinner fa-2x"></i>
+			</div>
+		</div>
+
+		<table
+			e2e="create-manual-txn-orchestration-table"
+			class="table table-bordered table-sm table-hover">
+
+			<thead>
+				<tr>
+					<th scope="col">Message ID</th>
+					<th scope="col">User</th>
+					<th scope="col">Submit date</th>
+					<th scope="col">Response date</th>
+					<th
+						class="text-center"
+						scope="col">
+
+						Status
+					</th>
+				</tr>
+			</thead>
+			<tbody
+				e2e="create-manual-txn-orchestration-row"
+				*ngFor="let item of histories; let i = index"
+				class="table-row-group">
+
+				<tr>
+					<td>
+						<a
+							href="javascript:void(0)"
+							class="btn btn-link"
+							(click)="openViewModal(item.jsonRequest, true)">
+
+							{{item.messageId}}
+						</a>
+					</td>
+					<td>{{item.userEmail}}</td>
+					<td>{{item.createdDate}}</td>
+					<td>{{item.updatedDate}}</td>
+					<td class="text-center">
+						<a
+							href="javascript:void(0)"
+							class="btn btn-link"
+							[ngClass]="{
+								'text-success': item.status !== httpStatuses.ERROR,
+								'text-danger': item.status === httpStatuses.ERROR
+							}"
+							(click)="openViewModal(item.errorMessage)">
+
+							{{item.status}}
+						</a>
+					</td>
+				</tr>
+			</tbody>
+
+			<tbody *ngIf="histories && !histories.length">
+				<tr>
+					<td
+						e2e="no-data"
+						colspan="8">
+						No data.
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div
+		*ngIf="histories && histories.length"
+		class="row">
+
+		<div class="col-12">
+			<paginator-v2
+				[loading]="loadingHistory"
+				[itemsPerPageEnabled]="true"
+				[boundaryLinks]="true"
+				(changed)="pageChanged()">
+			</paginator-v2>
+		</div>
+	</div>
+</div>

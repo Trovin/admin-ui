@@ -1,0 +1,12 @@
+<div
+	e2e="time-zone-range"
+	class="text-muted">
+	Range:
+	<span *ngIf="dataRangeType.ALL !== dateRange; else elseBlock">
+		{{dateFrom | dateTimeFormat}} - {{dateTo | dateTimeFormat}}
+	</span>
+	<ng-template #elseBlock>
+		{{dataRangeType.ALL}}
+	</ng-template>
+	({{timezone}})
+</div>

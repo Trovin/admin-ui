@@ -1,0 +1,27 @@
+<div class="d-flex align-items-center flex-column flex-xl-row justify-content-between mb-4">
+	<page-header
+		class="flex-grow-1"
+		[title]="title"
+		linkToWiki="https://wiki.go.akamai-access.com/display/BI/Page+group%3A+Audit">
+
+		<ng-template #pageHeaderContent>
+			<ul class="nav text-center">
+				<li 
+					*ngFor="let item of navigation; let i = index"
+					[class.d-none]="!item.isVisible"
+					[class.border-right]="navigation.length > 1 && (navigation.length - 1) !== i">
+		
+					<a
+						[attr.e2e]="item.e2e"
+						href="javascript:void(0)"
+						class="btn text-underline"
+						[routerLink]="item.href"
+						queryParamsHandling="merge">
+		
+						{{item.title}}
+					</a>
+				</li>
+			</ul>
+		</ng-template>
+	</page-header>
+</div>

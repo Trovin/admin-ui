@@ -1,0 +1,231 @@
+<div *ngIf="loading">
+	<div
+		e2e="loading-shade"
+		class="bhn-loading-shade h-100">
+		<i
+			e2e="loader"
+			class="fa fa-pulse fa-spinner fa-2x"></i>
+	</div>
+</div>
+
+<div class="modal-header d-flex justify-content-between">
+	<div>
+		<b>Create a request</b>
+	</div>
+
+	<button
+		type="button"
+		class="close pull-right"
+		data-dismiss="alert"
+		aria-label="Close"
+		(click)="bsModalRef.hide()">
+
+		<i
+			e2e="close-icon"
+			class="fa fa-times fa-lg"></i>
+	</button>
+</div>
+
+<div
+	*ngIf="!isRequestSent"
+	class="modal-body h-100">
+
+	<div class="mb-1">
+		Add resources and permissions:
+	</div>
+
+	<form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+		<div class="card p-3 mb-3 bg-light">
+			<div class="mb-3">
+				<div class="font-weight-bold mb-1">
+					Features:
+				</div>
+
+				<dropdown-item-multi-picker
+					#resources
+					class="block w-full"
+					placeholder="Selected all available"
+					placeholderEmpty="Select Features"
+					multiple="true"
+					[fixedWidth]="false"
+					[data]="resourcesDropdownList"
+					(paramsChanged)="changedResources($event)">
+				</dropdown-item-multi-picker>
+			</div>
+
+			<div class="d-flex">
+				<div class="mr-1 flex-fill">
+					<div class="font-weight-bold mb-1">
+						Permissions:
+					</div>
+
+					<div class="checkbox-group">
+						<div
+							*ngFor="let item of permissions; let i = index"
+							class="form-check form-check-inline">
+
+							<label>
+								<input
+									type="checkbox"
+									[formControl]="permissionsFormGroup?.controls[item.name]" />
+
+									{{ permissions[i]?.name }}
+							</label>
+						</div>
+					</div>
+				</div>
+
+				<div class="d-flex align-items-end">
+					<button
+						class="btn btn-primary rounded"
+						type="submit">
+
+						Add to request
+					</button>
+				</div>
+			</div>
+
+			<div
+				*ngIf="formGroup.invalid && formGroup.touched"
+				class="text-danger small mt-2">
+
+				Features and Permissions are required
+			</div>
+		</div>
+	</form>
+
+	<div>
+		<div class="h5 mb-0">
+			Summary
+		</div>
+
+		<hr>
+
+		<div class="mb-3">
+			<div>
+				Your email:
+			</div>
+			<div>
+				<span class="btn btn-link p-0">{{this.userEmail}}</span>
+			</div>
+		</div>
+
+		<div class="mb-3">
+			<div class="mb-1">
+				Requested items:
+			</div>
+			<table class="table table-sm table-hover table-bordered m-0">
+				<thead>
+					<tr>
+						<th class="align-middle">
+							Features
+						</th>
+						<th class="align-middle text-center">
+							Permissions
+						</th>
+
+						<th class="align-middle text-center">
+							Actions
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let item of requestedResources; let i = index">
+						<td class="align-middle">
+							{{item.resources.join(', ')}}
+						</td>
+
+						<td class="align-middle text-center">
+							{{item.permissions.join(', ')}}
+						</td>
+
+						<td
+							class="align-middle text-center">
+							<button
+								class="btn btn-outline-danger border-none p-1 pl-2 pr-2"
+								type="button"
+								title="Delete"
+								(click)="deleteRequestedResource(i)">
+
+								<i
+									e2e="delete"
+									class="fa fa-trash">
+								</i>
+							</button>
+						</td>
+					</tr>
+					<tr *ngIf="!requestedResources.length">
+						<td colspan="3">No items added</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="notes">
+			<label for="notes">Notes:</label>
+			<textarea
+				class="form-control"
+				id="notes"
+				rows="2"
+				[(ngModel)]="userNotes">
+			</textarea>
+		</div>
+	</div>
+</div>
+
+<div
+	*ngIf="isRequestSent"
+	class="modal-body h-100 d-flex flex-column align-items-center justify-content-center">
+
+	<div *ngIf="!requestErrorMsg">
+		<h2>Request sent <i class="fa fa-check-circle text-success ml-1"></i></h2>
+		<div class="mt-2">
+			We will contact you shortly
+		</div>
+	</div>
+
+	<div *ngIf="requestErrorMsg">
+		<h2 class="text-danger">Error</h2>
+		<div class="mt-2">
+			{{ requestErrorMsg }}
+		</div>
+	</div>
+</div>
+
+<div class="modal-footer d-flex flex-column">
+	<div
+		*ngIf="isEmptyData"
+		class="text-danger small mb-1">
+
+		No items added
+	</div>
+
+	<div class="d-flex justify-content-center">
+		<button
+			*ngIf="!isRequestSent"
+			type="button"
+			class="btn btn-success"
+			[disabled]="loading"
+			(click)="sendRequest()">
+
+			<i
+				e2e="close-icon"
+				class="fa fa-paper-plane mr-1"></i>
+
+			Send request
+		</button>
+
+		<button
+			*ngIf="isRequestSent"
+			type="button"
+			class="btn btn-danger"
+			(click)="bsModalRef.hide()">
+
+			<i
+				e2e="close-icon"
+				class="fa fa-times mr-1"></i>
+
+			Close
+		</button>
+	</div>
+</div>

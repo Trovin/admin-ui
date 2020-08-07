@@ -1,0 +1,90 @@
+<div
+	class="btn-group"
+	dropdown
+	container="body"
+	placement="right">
+
+	<button
+		e2e="actions"
+		class="btn btn-light"
+		dropdownToggle
+		type="button">
+
+		Actions
+		<i class="fa fa-caret-down ml-2"></i>
+	</button>
+	<ul
+		class="dropdown-menu dropdown-menu-right dropdown-alignment"
+		*dropdownMenu
+		role="menu">
+
+		<li
+			*permissions="{ container: containers.PIPELINES_CONFIGS, permissions: [permission.UPDATE] }"
+			role="menuitem">
+			<button
+				e2e="execute"
+				class="dropdown-item"
+				type="button"
+				[disabled]="!item.template || item.process"
+				(click)="executeFile()">
+
+				<i class="fa fa-play-circle mr-1 text-success"></i>
+				Execute
+			</button>
+		</li>
+
+		<li role="menuitem">
+			<button
+				e2e="download"
+				class="dropdown-item"
+				type="button"
+				(click)="downloadFile()">
+
+				<i class="fa fa-download mr-1 text-primary"></i>
+				Download
+			</button>
+		</li>
+
+		<li role="menuitem">
+			<a
+				e2e="find-on-s3"
+				class="dropdown-item"
+				[href]="composeS3Url(item.objectKey)"
+				target="_blank">
+
+				<i class="fa fa-share mr-1 text-warning"></i>
+				Find on S3
+			</a>
+		</li>
+
+		<li
+			*permissions="{ container: containers.PIPELINES_CONFIGS, permissions: [permission.UPDATE] }"
+			role="menuitem">
+			<button
+				e2e="cleanup"
+				class="dropdown-item"
+				type="button"
+				[disabled]="!item.template || item.process"
+				(click)="cleanUpFile()">
+
+				<i class="fa fa-eraser mr-1 text-secondary"></i>
+				Cleanup
+			</button>
+		</li>
+
+		<li
+			*permissions="{ container: containers.PIPELINES_CONFIGS, permissions: [permission.DELETE] }"
+			role="menuitem">
+			<button
+				e2e="delete"
+				class="dropdown-item"
+				type="button"
+				[disabled]="item.process"
+				(click)="deleteFile()">
+
+				<i class="fa fa-trash mr-1 text-danger"></i>
+				Delete
+			</button>
+		</li>
+	</ul>
+</div>

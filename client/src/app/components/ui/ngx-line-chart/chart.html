@@ -1,0 +1,23 @@
+<div class="chart-wrapper">
+	<ngx-charts-line-chart
+		[view]="viewData.view"
+		[results]="data"
+		[scheme]="viewData.colorScheme"
+		[legend]="viewData.showLegend"
+		[legendTitle]="viewData.legendTitle"
+		[xAxis]="viewData.showXAxis"
+		[yAxis]="viewData.showYAxis"
+		[showYAxisLabel]="viewData.showYAxisLabel"
+		[yAxisLabel]="viewData.yAxisLabel"
+		[xAxisTickFormatting]="xAxisTickFormattingFn"
+		[xAxisTicks]="xAxisTicks"
+		(select)="onSelect($event)">
+
+		<ng-template #tooltipTemplate let-model="model">
+			<p>
+				{{model.series}}: {{model.value}}
+			</p>
+			{{model.name | date:'M/DD/YY, hh:mm:ss a'}} (UTC)
+		</ng-template>
+	</ngx-charts-line-chart>
+</div>

@@ -1,0 +1,245 @@
+<div>
+	<button
+		type="button"
+		class="btn btn-outline-dark border-none mb-3"
+		title="Back to Source catalog"
+		(click)="goToBack()">
+
+		<i class="fa fa-arrow-left fa-lg"></i>
+		<span class="inline-block ml-2">Go back</span>
+	</button>
+</div>
+
+<page-header
+	class="block mb-3"
+	title="Update product details or insert new product"
+	[isShowRefreshBtn]="true"
+	[setLoadingStatus]="loadingLuProducts"
+	(refreshed)="initLuProducts()">
+
+	<ng-template #pageHeaderSubTitle>
+		<p class="m-0 bg-light p-1 border radius rounded text-dark small">
+			<i class="fa fa-info-circle p-1" aria-hidden="true"></i>
+			Your updates on this page will be saved in database within a time up to 5 minutes, and the update will be reflected on this page within a time up to 10 minutes.
+		</p>
+	</ng-template>
+</page-header>
+
+<button
+	type="button"
+	class="btn btn-success btn-sm mb-1"
+	aria-hidden="true"
+	[disabled]="loadingLuProducts"
+	(click)="openCreteProductModal()">
+
+	Add new product
+	<i class="fa fa-plus" aria-hidden="true"></i>
+</button>
+
+<div class="table-responsive relative pt-2">
+	<div *ngIf="loadingLuProducts">
+		<div
+			e2e="loading-shade"
+			class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<table
+		e2e="batch-audit-table"
+		class="table table-sm table-hover table-bordered">
+
+		<thead>
+			<tr>
+				<th scope="col">Description</th>
+				<th scope="col">Sort</th>
+				<th scope="col">Currency</th>
+				<th scope="col">Image</th>
+				<th scope="col" class="text-center">Box Set</th>
+				<th scope="col" class="text-center">Discontinued</th>
+				<th scope="col" class="text-center">Prepaid</th>
+				<th scope="col" class="text-center">Country</th>
+				<th scope="col" class="text-center">Content Type</th>
+				<th scope="col" class="text-center">Actions</th>
+			</tr>
+		</thead>
+		<tbody
+			e2e="channel-correction-row"
+			*ngFor="let item of items; let i = index"
+			class="table-row-group">
+
+			<tr>
+				<td class="align-middle">
+					{{item.productDesc}}
+				</td>
+
+				<td class="align-middle">
+					{{item.sortId}}
+				</td>
+
+				<td class="align-middle">
+					{{item.currencyId}}
+				</td>
+
+				<td class="align-middle">
+					{{item.image}}
+				</td>
+
+				<td class="align-middle text-center">
+					{{item.boxsetyn}}
+				</td>
+
+				<td class="align-middle text-center">
+					{{item.discontinuedyn}}
+				</td>
+
+				<td class="align-middle text-center">
+					{{item.prepaidyn}}
+				</td>
+
+				<td class="align-middle text-center">
+					{{item.countryId}}
+				</td>
+
+				<td class="align-middle text-center">
+					{{item.contentTypeDesc}}
+				</td>
+
+				<td class="text-center">
+					<div class="btn-group">
+						<button
+							e2e="apply"
+							type="button"
+							class="btn btn-success btn-sm"
+							(click)="openUpdateModal(i, item)">
+
+							Edit
+						</button>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+
+		<tbody *ngIf="items && !items.length">
+			<tr>
+				<td
+					e2e="no-data"
+					colspan="10">
+					No data.
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div class="border-top mt-4 pt-4">
+	<h5>
+		History
+
+		<button
+			type="button"
+			class="btn btn-default border-none pt-1 pb-1"
+			title="Refresh"
+			[disabled]="loadingHistory"
+			(click)="initHistory()">
+
+			<i
+				e2e="refresh"
+				class="fa fa-refresh"
+				[class.fa-spin]="loadingHistory">
+			</i>
+		</button>
+	</h5>
+
+	<div class="table-responsive relative pt-2">
+		<div *ngIf="loadingHistory">
+			<div
+				e2e="loading-shade"
+				class="bhn-loading-shade">
+				<i
+					e2e="loader"
+					class="fa fa-pulse fa-spinner fa-2x"></i>
+			</div>
+		</div>
+
+		<table
+			e2e="maintain-article-table"
+			class="table table-bordered table-sm table-hover">
+
+			<thead>
+				<tr>
+					<th scope="col">Message ID</th>
+					<th scope="col">User</th>
+					<th scope="col">Submit date</th>
+					<th scope="col">Response date</th>
+					<th
+						class="text-center"
+						scope="col">
+
+						Status
+					</th>
+				</tr>
+			</thead>
+			<tbody
+				e2e="maintain-article-table-row"
+				*ngFor="let item of histories; let i = index"
+				class="table-row-group">
+
+				<tr>
+					<td>
+						<a
+							href="javascript:void(0)"
+							class="btn btn-link"
+							(click)="openViewModal(item.jsonRequest, true)">
+
+							{{item.messageId}}
+						</a>
+					</td>
+					<td>{{item.userEmail}}</td>
+					<td>{{item.createdDate}}</td>
+					<td>{{item.updatedDate}}</td>
+					<td class="text-center">
+						<a
+							href="javascript:void(0)"
+							class="btn btn-link"
+							[ngClass]="{
+								'text-success': item.status !== httpStatuses.ERROR,
+								'text-danger': item.status === httpStatuses.ERROR
+							}"
+							(click)="openViewModal(item.errorMessage)">
+
+							{{item.status}}
+						</a>
+					</td>
+				</tr>
+			</tbody>
+
+			<tbody *ngIf="histories && !histories.length">
+				<tr>
+					<td
+						e2e="no-data"
+						colspan="8">
+
+						No data.
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div
+		*ngIf="histories && histories.length"
+		class="row">
+
+		<div class="col-12">
+			<paginator-v2
+				[loading]="loadingHistory"
+				[itemsPerPageEnabled]="true"
+				[boundaryLinks]="true"
+				(changed)="pageChanged()">
+			</paginator-v2>
+		</div>
+	</div>
+</div>

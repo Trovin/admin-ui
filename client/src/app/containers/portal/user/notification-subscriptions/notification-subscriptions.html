@@ -1,0 +1,81 @@
+<page-header
+	class="block mb-2"
+	title="Notification subscriptions"
+	linkToWiki="https://wiki.go.akamai-access.com/display/BI/Subscriptions+management"
+	[isShowRefreshBtn]="true"
+	[setLoadingStatus]="loading"
+	(refreshed)="fetch()">
+
+	<ng-template #pageHeaderSubTitle>
+		This page allows to subscribe to email alerts by different criteria, that helps to focus on those messages that are interesting for you.
+	</ng-template>
+</page-header>
+
+<div
+	*permissions="{ container: containers.SUBSCRIPTIONS, permission: [permission.CREATE] }"
+	class="pt-4 pb-2 btn-group">
+
+	<button
+		class="btn btn-success small text-nowrap"
+		type="button"
+		title="Subscribe own email"
+		[disabled]="loading"
+		(click)="createOwnSubscription()">
+
+		<i class="fa fa-plus fa-fw mr-1"></i>
+		<small>Subscribe own email</small>
+	</button>
+
+	<button
+		class="btn btn-info small text-nowrap"
+		type="button"
+		title="Subscribe other email"
+		[disabled]="loading"
+		(click)="createOtherSubscription()">
+
+		<i class="fa fa-plus fa-fw mr-1"></i>
+		<small>Subscribe other email</small>
+	</button>
+
+</div>
+
+<div class="pt-2 pb-2 text-primary">
+	Subscription email: {{userEmail}}
+</div>
+
+<div class="table-responsive relative mb-3">
+	<div *ngIf="loading">
+		<div
+			e2e="loading-shade"
+			class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<div>
+		<div class="pt-2 pb-2">
+			Subscriptions:
+		</div>
+
+		<subscriptions-table
+			[hideSecondaryColumns]="false"
+			[items]="subscriptions"
+			(delete)="delete($event)"
+			(switchSubscriptionState)="switchSubscriptionState($event)">
+		</subscriptions-table>
+
+		<div class="pt-2 pb-2">
+			Exceptions:
+		</div>
+
+		<subscriptions-table
+			[hideSecondaryColumns]="true"
+			[items]="exceptions"
+			(delete)="delete($event)"
+			(switchSubscriptionState)="switchSubscriptionState($event)">
+		</subscriptions-table>
+	</div>
+
+</div>

@@ -1,0 +1,14 @@
+.upload-file-box {
+	border: 2px dashed #eee;
+	border-radius: .5rem;
+}
+
+.drag-and-drop-box {
+	background: #f5fcff;
+	opacity: 1;
+
+	&.onDrag {
+		background: #9ecbec;
+		opacity: 0.8;
+	}
+}

@@ -1,0 +1,94 @@
+<div class="vh-100 container d-flex flex-column align-items-center justify-content-center">
+	<ng-container *ngIf="routeParams.message && !data.status">
+		<h1 class="mb-4 text-center">
+			<i class="fa fa-5x fa-exclamation-circle"></i>
+			<p>
+				Oops! Something went wrong.
+			</p>
+		</h1>
+
+		<div 
+			*ngIf="routeParams.message" 
+			class="error-details text-center">
+
+			<div class="table-responsive mb-4">
+			<table class="table table-bordered text-left">
+				<tbody>
+					<tr>
+						<td>ERROR:</td>
+						<td>
+							<span *ngIf="routeParams.status; else elseBlock">
+								{{routeParams.status}}
+							</span>
+							<ng-template #elseBlock>
+								-
+							</ng-template>
+						</td>
+					</tr>
+					<tr>
+						<td>Page URI:</td>
+						<td class="pre-wrap-text">{{routeParams.uri}}</td>
+					</tr>
+
+					<tr>
+						<td>API Source:</td>
+						<td class="pre-wrap-text">
+							<span *ngIf="routeParams.url; else elseBlock">
+								{{routeParams.url}}
+							</span>
+							<ng-template #elseBlock>
+								-
+							</ng-template>
+						</td>
+					</tr>
+					<tr>
+						<td>Message:</td>
+						<td class="pre-wrap-text">{{routeParams.detailedMessage}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+			<div class="btn-group">
+				<a 
+					*ngIf="routeParams.uri"
+					href="javascript:void(0)"
+					class="btn btn-info"
+					(click)="navigateTo(routeParams.uri)">
+
+					<i class="fa fa-arrow-circle-left"></i>
+
+					Go Back to Previous Page
+				</a>
+
+				<a 
+					href="javascript:void(0)"
+					class="btn btn-secondary"
+					routerLink="/">
+
+					<i class="fa fa-home"></i>
+				
+					Go to Home Page
+				</a>
+			</div>
+		</div>
+	</ng-container>
+
+	<div
+		*ngIf="!routeParams.message && !data.status"
+		class="text-center">
+
+		<h1 class="mb-2">Oops! Something went wrong.</h1>
+		<p class="text-mute lead mb-3">Unknown error, sorry :(</p>
+
+		<a 
+			href="javascript:void(0)"
+			class="btn btn-secondary"
+			routerLink="/">
+
+			<i class="fa fa-home"></i>
+
+			Go to Home Page
+		</a>
+	</div>
+</div>

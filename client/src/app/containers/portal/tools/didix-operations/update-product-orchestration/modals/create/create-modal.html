@@ -1,0 +1,223 @@
+<div class="modal-header d-flex flex-column align-items-stretch">
+	<div>
+		<h4 class="modal-title pull-left">{{title}}</h4>
+		<button
+			class="close pull-right"
+			type="button"
+			(click)="bsModalRef.hide()">
+
+			<i
+				class="fa"
+				[ngClass]="{
+					'fa-times': !submitted,
+					'fa-pulse fa-spinner fa-spin': submitted
+				}">
+			</i>
+		</button>
+	</div>
+</div>
+
+<div class="modal-body">
+	<form
+		[formGroup]="form"
+		(ngSubmit)="submit()">
+
+		<div
+			*ngIf="action !== modalActions.DELETE"
+			class="mb-4">
+
+			<div class="form-group d-flex flex-column">
+				<label for="productDesc"><b>Description</b></label>
+
+				<input
+					id="productDesc"
+					type="text"
+					name="description"
+					placeholder="Description"
+					class="form-control"
+					[attr.disabled]="submitted ? '': null"
+					[class.is-invalid]="form.get('productDesc').touched && form.get('productDesc').errors"
+					formControlName="productDesc"/>
+
+				<form-message [control]="form.get('productDesc')"></form-message>
+			</div>
+
+			<div class="form-group d-flex flex-column">
+				<label for="sort"><b>Sort</b></label>
+				<input
+					id="sort"
+					type="number"
+					name="sort"
+					placeholder="Sort"
+					class="form-control"
+					[attr.disabled]="submitted ? '': null"
+					[class.is-invalid]="form.get('sortId').touched && form.get('sortId').errors"
+					formControlName="sortId"/>
+
+				<form-message [control]="form.get('sortId')"></form-message>
+			</div>
+
+			<div class="form-group d-flex flex-column">
+				<label for="currency"><b>Currency</b></label>
+				<input
+					id="currency"
+					type="text"
+					name="currency"
+					placeholder="Currency"
+					class="form-control"
+					[attr.disabled]="submitted ? '': null"
+					[class.is-invalid]="form.get('currencyId').touched && form.get('currencyId').errors"
+					formControlName="currencyId"/>
+
+				<form-message
+					[control]="form.get('currencyId')"
+					[customErrorMessage]="'Max length 3 characters'">
+				</form-message>
+			</div>
+
+			<div class="form-group d-flex flex-column">
+				<label for="image"><b>Image</b></label>
+				<input
+					id="image"
+					type="text"
+					name="image"
+					placeholder="Image"
+					class="form-control"
+					[attr.disabled]="submitted ? '': null"
+					[class.is-invalid]="form.get('image').touched && form.get('image').errors"
+					formControlName="image"/>
+
+				<form-message [control]="form.get('image')"></form-message>
+			</div>
+
+			<div class="d-flex flex-column flex-xl-row mb-3">
+				<div class="custom-control custom-checkbox col">
+					<input
+						id="boxsetyn"
+						type="checkbox"
+						name="boxSet"
+						placeholder="Box set"
+						class="custom-control-input"
+						[attr.disabled]="submitted ? '': null"
+						[checked]="form.get('boxsetyn').value"
+						formControlName="boxsetyn"
+						(change)="changeBoxSetyn($event.target.checked)"/>
+
+					<label
+						for="boxsetyn"
+						class="custom-control-label">
+
+						<b>Box set</b>
+					</label>
+
+					<form-message [control]="form.get('boxsetyn')"></form-message>
+				</div>
+
+				<div class="custom-control custom-checkbox col">
+					<input
+						id="discontinuedyn"
+						type="checkbox"
+						name="discontinued"
+						placeholder="Discontinued"
+						class="custom-control-input"
+						[attr.disabled]="submitted ? '': null"
+						[checked]="form.get('discontinuedyn').value"
+						formControlName="discontinuedyn"
+						(change)="changeDiscontinuedyn($event.target.checked)"/>
+
+					<label
+						for="discontinuedyn"
+						class="custom-control-label">
+
+						<b>Discontinued</b>
+					</label>
+
+					<form-message [control]="form.get('discontinuedyn')"></form-message>
+				</div>
+
+				<div class="custom-control custom-checkbox col">
+					<input
+						id="prepaidyn"
+						type="checkbox"
+						name="prepaid"
+						placeholder="Prepaid"
+						class="custom-control-input"
+						[attr.disabled]="submitted ? '': null"
+						[checked]="form.get('prepaidyn').value"
+						formControlName="prepaidyn" (change)="changePrepaidyn($event.target.checked)"/>
+
+					<label
+						for="prepaidyn"
+						class="custom-control-label">
+
+						<b>Prepaid</b>
+					</label>
+
+					<form-message [control]="form.get('prepaidyn')"></form-message>
+				</div>
+			</div>
+
+			<div class="form-group d-flex flex-column">
+				<label for="countryId"><b>Country</b></label>
+				<input
+					id="countryId"
+					type="text"
+					name="country"
+					placeholder="Country"
+					class="form-control"
+					[attr.disabled]="submitted ? '': null"
+					[class.is-invalid]="form.get('countryId').touched && form.get('countryId').errors"
+					formControlName="countryId"/>
+
+				<form-message
+					[control]="form.get('countryId')"
+					[customErrorMessage]="'Max length 2 characters'">
+				</form-message>
+			</div>
+
+			<div class="form-group d-flex flex-column">
+				<label class="w-100">
+					<b>Content type</b>
+
+					<dropdown-item-picker
+						e2e="content-type"
+						#contentTypeDesc
+						class="block w-100"
+						placeholder="Select content type"
+						[fixedWidth]="false"
+						[loading]="loadingContentTypes"
+						[class.is-invalid]="form.get('contentTypeId').touched && form.get('contentTypeId').errors"
+						[dataObservable]="contentTypesSubj"
+						(paramsChanged)="changedContentType($event[0].value)">
+					</dropdown-item-picker>
+				</label>
+
+				<form-message [control]="form.get('contentTypeId')"></form-message>
+			</div>
+		</div>
+
+		<div *ngIf="errorMessage">
+			{{errorMessage}}
+		</div>
+
+		<div class="text-center">
+			<div class="btn-group">
+				<button
+					class="btn btn-success"
+					type="submit"
+					[disabled]="submitted">
+
+					<ng-template
+						[ngIf]="action === modalActions.DELETE"
+						[ngIfElse]="elseBlock">
+
+						Delete
+					</ng-template>
+					<ng-template #elseBlock>
+						Apply
+					</ng-template>
+				</button>
+			</div>
+		</div>
+	</form>
+</div>

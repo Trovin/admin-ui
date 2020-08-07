@@ -1,0 +1,110 @@
+<reconciliation-form
+	[loading]="loading"
+	(changed)="performSearch()">
+</reconciliation-form>
+
+<div class="table-responsive relative mb-3">
+	<div *ngIf="loading">
+		<div
+			e2e="loading-shade"  
+			class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<table
+		e2e="db-to-db-recon-table"
+		class="table table-striped margin-none">
+		<thead>
+			<tr>
+				<th>
+					Start Date
+					<p class="help-block text-muted">({{timezone}})</p>
+				</th>
+				<th>
+					End Date
+					<p class="help-block text-muted">({{timezone}})</p>
+				</th>
+				<th>Source application</th>
+				<th>Event type</th>
+				<th class="text-right">Source count</th>
+				<th class="text-right">Target count</th>
+				<th class="text-right">Lost/Skipped events</th>
+				<th class="text-center">Result</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr 
+				e2e="db-to-db-recon-row"
+				*ngFor="let item of items; let i = index">
+				<td e2e="start-date">
+					{{item.start_date | dateTimeFormat: 'yyyy-MM-dd HH:mm:ss'}}
+				</td>
+
+				<td e2e="end-date">
+					{{item.end_date | dateTimeFormat: 'yyyy-MM-dd HH:mm:ss'}}
+				</td>
+
+				<td e2e="source-application">
+					{{item.source_application}}
+				</td>
+
+				<td e2e="event-type">
+					{{item.source_eventtype}}
+				</td>
+
+				<td 
+					e2e="source-count"
+					class="text-right">
+					{{item.source_count | number}}
+				</td>
+
+				<td
+					e2e="target-count"
+					class="text-right">
+					{{item.target_count | number}}
+				</td>
+
+				<td 
+					e2e="skipped-events"
+					class="text-right">
+					{{item.source_count - item.target_count | number}}
+				</td>
+
+				<td class="text-center">
+					<i
+						e2e="result"
+						class="fa"
+						[ngClass]="{
+							'fa-check-circle text-success': item.source_count === item.target_count,
+							'fa-times-circle text-danger': item.source_count !== item.target_count
+						}"
+					>
+					</i>
+				</td>
+			</tr>
+
+			<tr *ngIf="!items.length && !loading">
+				<td
+					e2e="no-data"
+					colspan="8">
+					No data.
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div
+	*ngIf="pagination.totalPages > 1">
+
+	<paginator
+		[loading]="loading"
+		[itemsPerPage]="pagination.itemsPerPage"
+		[totalItems]="pagination.totalItems"
+		[page]="pagination.page"
+		(changed)="pageChanged($event.page)">
+	</paginator>
+</div>

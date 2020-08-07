@@ -1,0 +1,51 @@
+<form
+	e2e="post-processing-filter-section"
+	class="clearfix d-flex flex-column flex-md-row align-items-start mb-4">
+	<label class="p-2 pl-md-0 pt-xxl-2 col-form-label">
+		<b>Filter by:</b>
+	</label>
+
+	<div>
+		<div class="clearfix d-md-flex align-items-center padding-vertical form-horizontal w-100">
+			<div class="m-0 p-2 pt-md-0">
+				<material-date-range
+					#dateRange
+					fieldId="dateRangeType"
+					class="date-range"
+					[data]="dates"
+					[exclude]="exclude"
+					[disabled]="loading"
+					[defaultData]="defaultDates"
+					[fixedWidth]="true"
+					(valuesChanged)="applyDates($event)">
+				</material-date-range>
+			</div>
+
+			<div class="m-0 p-2 pt-md-0">
+				<button
+					class="btn btn-default"
+					type="button"
+					title="Refresh"
+					[disabled]="loading"
+					(click)="refresh()">
+
+					<i
+						e2e="refresh"
+						class="fa fa-refresh"
+						[class.fa-spin]="loading">
+					</i>
+				</button>
+			</div>
+		</div>
+
+		<div class="p-2 pt-md-0 pl-md-0">
+			<date-range-ui
+				#dateRange
+				[dateRange]="params.dateRange"
+				[dateFrom]="params.dateFrom"
+				[dateTo]="params.dateTo">
+			</date-range-ui>
+		</div>
+	</div>
+</form>
+

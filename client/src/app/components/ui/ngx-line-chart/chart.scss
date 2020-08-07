@@ -1,0 +1,38 @@
+.chart-wrapper {
+	display: -ms-grid;
+	display: grid;
+
+	width: 100%;
+	height: 100%;
+}
+
+// @TODO: temporary solution
+:host ::ng-deep ngx-charts-line-chart {
+	ngx-charts-legend.chart-legend {
+		display: block;
+		float: left;
+
+		& > div {
+			width: auto !important;
+		}
+
+		.legend-labels {
+			width: auto;
+			display: inline-block;
+			background: none;
+			float: none;
+			white-space: normal;
+		}
+		.legend-label {
+			display: inline-block;
+		}
+	}
+
+	.line-chart {
+		transform: translate(150px, 10px);
+	}
+
+	.ngx-charts {
+		width: 800px;
+	}
+}

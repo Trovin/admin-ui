@@ -1,0 +1,4 @@
+export enum TimeUnit {
+	MICROSECOND = 'MICROSECOND',
+	MILLISECOND = 'MILLISECOND'
+}

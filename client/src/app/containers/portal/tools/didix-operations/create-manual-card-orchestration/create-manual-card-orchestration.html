@@ -1,0 +1,362 @@
+<div>
+	<button
+		type="button"
+		class="btn btn-outline-dark border-none mb-3"
+		title="Back to Source catalog"
+		(click)="goToBack()">
+
+		<i class="fa fa-arrow-left fa-lg"></i>
+		<span class="inline-block ml-2">Go back</span>
+	</button>
+</div>
+
+<page-header
+	class="block mb-3"
+	title="Manual Sales">
+
+	<ng-template #pageHeaderSubTitle>
+		<p class="m-0 bg-light p-1 border radius rounded text-dark small">
+			<i class="fa fa-info-circle p-1" aria-hidden="true"></i>
+			Your updates on this page will be saved in database within a time up to 5 minutes, and the update will be reflected on this page within a time up to 10 minutes.
+		</p>
+	</ng-template>
+</page-header>
+
+<form
+	e2e="search-section"
+	class="d-flex flex-column flex-xxl-row mb-3"
+	[formGroup]="form"
+	ngNativeValidate
+	(keydown.enter)="$event.preventDefault()">
+
+	<h5 class="text-nowrap h6 bold m-0 d-flex align-items-start align-self-xxl-center">Filter by:</h5>
+
+	<div class="d-flex flex-column flex-xxl-row mb-2 m-xl-0 col-xl-6 col-xxl-9 p-0">
+		<div class="form-group col m-0 pr-xxl-2 pl-xxl-2">
+			<label for="salesDate">
+				<b>Sales Date</b>
+			</label>
+
+			<div class="d-flex">
+				<div class="form-group flex-fill m-0 p-0">
+					<input
+						type="text"
+						id="salesDate"
+						class="form-control radius-none"
+						name="date"
+						placeholder="yyyy-mm-dd"
+						#bsDp="bsDatepicker"
+						bsDatepicker
+						triggers="keydown:click"
+						[outsideClick]="true"
+						formControlName="salesDate"
+						[bsConfig]="{useUtc: false, containerClass: 'theme-default', dateInputFormat: 'YYYY-MM-DD'}"
+						(bsValueChange)="changeSalesDate($event)">
+				</div>
+
+				<div class="input-group-btn m-0 p-0">
+					<button
+						e2e="date-range-from"
+						type="button"
+						class="btn btn-default border radius-none"
+						[disabled]="submitted"
+						(click)="bsDp.toggle()">
+
+						<i class="fa fa-calendar"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group col m-0 pr-xxl-2 pl-xxl-2"
+			[class.m-i]="">
+
+			<label for="salesPrice">
+				<b>Sales Amount</b>
+			</label>
+
+			<input
+				type="number"
+				id="salesPrice"
+				placeholder="-- Any --"
+				step="any"
+				class="form-control block"
+				[attr.disabled]="submitted ? '' : null"
+				formControlName="salesPrice">
+		</div>
+
+		<div class="form-group col m-0 pr-xxl-2 pl-xxl-2">
+			<label class="w-100">
+				<b>Product</b>
+
+				<dropdown-item-picker
+					class="block w-100"
+					placeholder="-- Any --"
+					[fixedWidth]="false"
+					[loading]="loadingProducts"
+					[disabled]="submitted"
+					[dataObservable]="productsSubj"
+					(paramsChanged)="changedProduct($event[0].value)">
+				</dropdown-item-picker>
+			</label>
+		</div>
+
+		<span class="d-none d-xxl-flex align-items-end slash-separator"><b>/</b></span>
+
+		<div class="form-group col m-0 pr-xxl-2 pl-xxl-2">
+			<label class="w-100">
+				<b>Article</b>
+
+				<dropdown-item-picker
+					#articlesList
+					class="block w-100"
+					placeholder="-- Any --"
+					[fixedWidth]="false"
+					[loading]="loadingArticles && params.productId"
+					[disabled]="submitted || loadingProducts || loadingArticles || !params.productId"
+					[dataObservable]="articlesSubj"
+					(paramsChanged)="changedArticle($event[0].value)">
+				</dropdown-item-picker>
+			</label>
+		</div>
+
+		<div class="form-group col m-0 pr-xxl-2 pl-xxl-2">
+			<label class="w-100">
+				<b>Debtor</b>
+
+				<dropdown-item-picker
+					e2e="event-type-dropdown"
+					class="block w-100"
+					placeholder="-- Any --"
+					[fixedWidth]="false"
+					[loading]="loadingDebtors"
+					[disabled]="submitted"
+					[dataObservable]="debtorsSubj"
+					(paramsChanged)="changedDebtor($event[0].value)">
+				</dropdown-item-picker>
+			</label>
+		</div>
+	</div>
+
+	<div class="align-cards-start align-self-xxl-end inline-block mt-2 mt-xxl-0">
+		<button
+			e2e="apply"
+			type="submit"
+			class="btn btn-secondary mr-1"
+			[disabled]="submitted"
+			(click)="applyFilters()">
+
+			Search
+		</button>
+
+		<button
+			e2e="create"
+			type="submit"
+			class="btn btn-success"
+			(click)="openCreteModal()">
+
+			Create
+		</button>
+	</div>
+</form>
+
+<div class="table-responsive relative pt-2">
+	<div *ngIf="loadingLuCards">
+		<div
+			e2e="loading-shade"
+			class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<table
+		e2e="cards-table"
+		class="table table-sm table-hover table-bordered">
+
+		<thead>
+			<tr>
+				<th scope="col">Article</th>
+				<th scope="col">Product</th>
+				<th scope="col">Debtor</th>
+				<th scope="col">Debtor Id</th>
+				<th scope="col">Sales date</th>
+				<th scope="col">Sales amount</th>
+				<th scope="col" class="text-center">Actions</th>
+			</tr>
+		</thead>
+
+		<tbody
+			e2e="cards-row"
+			*ngFor="let item of cards; let i = index"
+			class="table-row-group">
+
+		<tr>
+			<td class="align-middle">
+				{{item.articleDesc}}
+			</td>
+
+			<td class="align-middle">
+				{{item.productDesc}}
+			</td>
+
+			<td class="align-middle">
+				{{item.debtorDesc}}
+			</td>
+
+			<td class="align-middle">
+				{{item.debtor}}
+			</td>
+
+			<td class="align-middle">
+				{{item.salesDateId | date:'YYYY-MM-DD': timezone.LOCAL}}
+			</td>
+
+			<td class="align-middle">
+				{{item.salesPrice}}
+			</td>
+
+			<td class="text-center">
+				<button
+					e2e="delete"
+					type="submit"
+					title="Delete"
+					class="btn btn-link"
+					(click)="openDeleteModal(i, item)">
+
+					Delete
+				</button>
+			</td>
+		</tr>
+		</tbody>
+
+		<tbody *ngIf="cards && !cards.length">
+		<tr>
+			<td
+				e2e="no-data"
+				colspan="10">
+				No data.
+			</td>
+		</tr>
+		</tbody>
+	</table>
+
+	<div
+		*ngIf="cards && cards.length"
+		class="col-12">
+
+		<pager-v2
+			[loading]="loadingLuCards"
+			[itemsPerPageEnabled]="true"
+			(changed)="pageLuCardChanged()">
+		</pager-v2>
+	</div>
+</div>
+
+<div class="border-top mt-4 pt-4">
+	<h5>
+		History
+
+		<button
+			type="button"
+			class="btn btn-default border-none pt-1 pb-1"
+			title="Refresh"
+			[disabled]="loadingHistory"
+			(click)="initHistory()">
+
+			<i
+				e2e="refresh"
+				class="fa fa-refresh"
+				[class.fa-spin]="loadingHistory">
+			</i>
+		</button>
+	</h5>
+
+	<div class="table-responsive relative pt-2">
+		<div *ngIf="loadingHistory">
+			<div
+				e2e="loading-shade"
+				class="bhn-loading-shade">
+				<i
+					e2e="loader"
+					class="fa fa-pulse fa-spinner fa-2x"></i>
+			</div>
+		</div>
+
+		<table
+			e2e="maintain-article-table"
+			class="table table-bordered table-sm table-hover">
+
+			<thead>
+			<tr>
+				<th scope="col">Message ID</th>
+				<th scope="col">User</th>
+				<th scope="col">Submit date</th>
+				<th scope="col">Response date</th>
+				<th
+					class="text-center"
+					scope="col">
+
+					Status
+				</th>
+			</tr>
+			</thead>
+			<tbody
+				e2e="maintain-article-table-row"
+				*ngFor="let item of histories; let i = index"
+				class="table-row-group">
+
+			<tr>
+				<td>
+					<a
+						href="javascript:void(0)"
+						class="btn btn-link"
+						(click)="openViewModal(item.jsonRequest, true)">
+
+						{{item.messageId}}
+					</a>
+				</td>
+				<td>{{item.userEmail}}</td>
+				<td>{{item.createdDate}}</td>
+				<td>{{item.updatedDate}}</td>
+				<td class="text-center">
+					<a
+						href="javascript:void(0)"
+						class="btn btn-link"
+						[ngClass]="{
+								'text-success': item.status !== httpStatuses.ERROR,
+								'text-danger': item.status === httpStatuses.ERROR
+							}"
+						(click)="openViewModal(item.errorMessage)">
+
+						{{item.status}}
+					</a>
+				</td>
+			</tr>
+			</tbody>
+
+			<tbody *ngIf="histories && !histories.length">
+			<tr>
+				<td
+					e2e="no-data"
+					colspan="8">
+
+					No data.
+				</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div *ngIf="histories && histories.length">
+		<div class="col-12">
+			<paginator-v2
+				[loading]="loadingHistory"
+				[cardsPerPageEnabled]="true"
+				[boundaryLinks]="true"
+				(changed)="pageChanged()">
+			</paginator-v2>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,120 @@
+<div
+	class="input-group"
+	[class.open]="open">
+
+	<div
+		e2e="date-range-menu"
+		class="date-range-custom dropdown-menu dropdown-menu-right p-2">
+		<div class="d-flex pb-2">
+			<div class="form-group col-xs-10 m-0 p-0">
+				<input
+					e2e="from-date"
+					class="form-control datepicker-field"
+					name="date"
+					readonly
+					#dpFrom="bsDatepicker"
+					bsDatepicker
+					placeholder="From Date"
+					triggers="keydown:click"
+					[bsConfig]="{containerClass : 'theme-default'}"
+					[value]="from | date: dateFormat"
+					[(ngModel)]="from"
+					(bsValueChange)="setFrom($event)">
+			</div>
+
+			<div class="input-group-btn col-xs-2 m-0 p-0">
+				<button
+					type="button"
+					class="btn btn-default border"
+					(click)="dpFrom.toggle()">
+
+					<i
+						e2e="from-caledar"
+						class="fa fa-calendar"></i>
+				</button>
+			</div>
+		</div>
+
+		<div class="d-flex">
+			<div class="form-group col-xs-10 m-0 p-0">
+				<input
+					e2e="to-date"
+					class="form-control datepicker-field"
+					name="date"
+					readonly
+					#dpTo="bsDatepicker"
+					bsDatepicker
+					placeholder="To Date"
+					triggers="keydown:click"
+					[minDate]="min"
+					[maxDate]="max"
+					[bsConfig]="{containerClass : 'theme-default'}"
+					[value]="to | date: dateFormat"
+					[(ngModel)]="to"
+					(bsValueChange)="setTo($event)">
+			</div>
+
+			<div class="form-group col-xs-2 m-0 p-0">
+				<button
+					type="button"
+					class="btn btn-default border"
+					(click)="dpTo.toggle()">
+
+					<i
+						e2e="to-calendar"
+						class="fa fa-calendar"></i>
+				</button>
+			</div>
+		</div>
+
+		<div class="text-right pt-2">
+			<button
+				e2e="apply-date-range"
+				type="button"
+				class="btn btn-default border"
+				[disabled]="!from || !to"
+				(click)="applyRange()">
+
+				Apply
+			</button>
+		</div>
+	</div>
+
+	<div
+		e2e="dropdown"
+		class="dropdown-select-backdrop"
+		[class.open]="open"
+		(click)="close()">
+	</div>
+
+	<select
+		e2e="date-range-select"
+		name="range"
+		class="form-control"
+		[disabled]="disabled"
+		[id]="fieldId"
+		[class.raunded-0]="insideGroup"
+		[(ngModel)]="range"
+		(ngModelChange)="changeRangeType()">
+
+		<option
+			*ngFor="let option of options"
+			[value]="option">
+
+			{{localeProperties.get(option)}}
+		</option>
+	</select>
+
+	<div class="input-group-btn">
+		<button
+			type="button"
+			class="btn btn-default border"
+			[disabled]="disabled"
+			(click)="open = true">
+
+			<i
+				e2e="calendar-icon"
+				class="fa fa-calendar"></i>
+		</button>
+	</div>
+</div>

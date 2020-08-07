@@ -1,0 +1,101 @@
+<div class="modal-header d-flex flex-row align-items-top">
+	<h4 class="modal-title pull-left">{{title}} for {{fiscalYearId}} year, {{form.get('weekId').value}} week</h4>
+
+	<button
+		class="close pull-right"
+		type="button"
+		(click)="bsModalRef.hide()">
+
+		<i
+			class="fa"
+			[ngClass]="{
+					'fa-times': !submitted,
+					'fa-pulse fa-spinner fa-spin': submitted
+				}">
+		</i>
+	</button>
+</div>
+
+<div class="modal-body">
+	<form
+		[formGroup]="form"
+		(ngSubmit)="submit()">
+
+		<div
+			*ngIf="action !== modalActions.DELETE"
+			class="mb-4">
+
+			<div class="form-group d-flex flex-column">
+				<label for="planAmt"><b>Plan</b></label>
+
+				<input
+					#planAmt
+					id="planAmt"
+					type="number"
+					name="description"
+					placeholder="00.00"
+					step="any"
+					class="form-control"
+					[attr.disabled]="submitted ? '': null"
+					[class.is-invalid]="form.get('planAmount').touched && form.get('planAmount').errors"
+					formControlName="planAmount"/>
+
+				<form-message
+					[control]="form.get('planAmount')"
+					[customErrorMessage]="'Max 2 decimal places'">
+				</form-message>
+			</div>
+
+			<div class="form-group d-flex flex-column">
+				<label for="targetAmt"><b>Target</b></label>
+				<input
+					#targetAmt
+					id="targetAmt"
+					type="number"
+					name="sort"
+					placeholder="00.00"
+					step="any"
+					class="form-control"
+					[attr.disabled]="submitted ? '': null"
+					[class.is-invalid]="form.get('targetAmount').touched && form.get('targetAmount').errors"
+					formControlName="targetAmount"/>
+
+				<form-message
+					[control]="form.get('targetAmount')"
+					[customErrorMessage]="'Max 2 decimal places'">
+				</form-message>
+			</div>
+		</div>
+
+		<div *ngIf="errorMessage">
+			{{errorMessage}}
+		</div>
+
+		<div class="text-center">
+			<div class="btn-group">
+				<button
+					class="btn btn-success"
+					type="submit"
+					[disabled]="submitted">
+
+					<ng-template
+						[ngIf]="action === modalActions.DELETE"
+						[ngIfElse]="elseBlock">
+
+						Delete
+					</ng-template>
+					<ng-template #elseBlock>
+						Apply
+					</ng-template>
+				</button>
+				<button
+					type="button"
+					class="btn btn-danger"
+					(click)="decline()">
+
+					Cancel
+				</button>
+			</div>
+		</div>
+	</form>
+</div>

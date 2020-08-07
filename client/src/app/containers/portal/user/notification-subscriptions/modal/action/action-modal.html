@@ -1,0 +1,144 @@
+<div class="modal-header d-flex flex-column align-items-stretch">
+	<div>
+		<h4 class="modal-title pull-left">{{title}}</h4>
+		<button
+			class="close pull-right"
+			type="button"
+			(click)="bsModalRef.hide()">
+
+			<i
+				class="fa"
+				[ngClass]="{
+					'fa-times': !submitted,
+					'fa-pulse fa-spinner fa-spin': submitted
+				}">
+			</i>
+		</button>
+	</div>
+
+	<div class="small">
+		<span class="text-default">
+			Read the wiki before choosing options to subscribe.
+		</span>
+		<a
+			href="https://wiki.go.akamai-access.com/display/BI/Subscriptions+management"
+			target="_blank">
+
+			Learn more...
+		</a>
+	</div>
+</div>
+
+
+<div class="modal-body">
+	<form
+		class="mt-2 mb-2"
+		[formGroup]="form"
+		(ngSubmit)="submit()">
+
+		<div class="form-group d-flex flex-column">
+			<label>
+				Subscription email:
+			</label>
+			<input
+				type="email"
+				name="email"
+				class="form-control"
+				formControlName="email" />
+
+				<form-message [control]="form.get('email')"></form-message>
+		</div>
+
+		<div class="form-group d-flex flex-column">
+			<label>Component:</label>
+			<dropdown-item-picker
+				#eventId
+				class="block w-100"
+				[fixedWidth]="false"
+				[disabled]="submitted"
+				[formControl]="form.controls['component']"
+				[dataObservable]="componentsSubj">
+			</dropdown-item-picker>
+
+			<form-message [control]="form.get('component')"></form-message>
+		</div>
+
+		<div class="form-group d-flex flex-column">
+			<label>Source Application:</label>
+
+			<dropdown-item-picker
+				class="block w-100"
+				[fixedWidth]="false"
+				[disabled]="submitted"
+				[formControl]="form.controls['sourceApplication']"
+				[dataObservable]="sourceAppsSubj"
+				(paramsChanged)="sourceChanged($event)">
+			</dropdown-item-picker>
+
+			<form-message [control]="form.get('sourceApplication')"></form-message>
+		</div>
+
+		<div class="form-group d-flex flex-column">
+			<label>Event Id:</label>
+			<dropdown-item-picker
+				#dropdownItemPickers
+				class="block w-100"
+				[fixedWidth]="false"
+				[formControl]="form.controls['eventId']"
+				[disabled]="submitted || eventIds.length <= 1"
+				[loading]="eventIdsLoading"
+				[data]="eventIds">
+			</dropdown-item-picker>
+
+			<form-message [control]="form.get('eventId')"></form-message>
+		</div>
+
+		<div class="form-group d-flex flex-column">
+			<label>Severity level:</label>
+			<dropdown-item-picker
+				class="block w-100"
+				[fixedWidth]="false"
+				[disabled]="submitted"
+				[formControl]="form.controls['level']"
+				[data]="levelListDropdown">
+			</dropdown-item-picker>
+
+			<form-message [control]="form.get('level')"></form-message>
+		</div>
+
+		<div class="form-group d-flex flex-column">
+			<label>
+				<input
+					type="checkbox"
+					[formControl]="form.controls['exception']"/>
+				add to exceptions
+			</label>
+		</div>
+
+		<div
+			*ngIf="validationError"
+			class="text-danger pt-2 pb-2">
+
+			{{validationError}}
+		</div>
+
+		<div class="text-center relative mt-4">
+			<div class="btn-group">
+				<button
+					class="btn btn-success"
+					type="submit"
+					[disabled]="submitted || form.invalid">
+
+					{{textControlBtn}}
+				</button>
+				<button
+					type="button"
+					class="btn btn-danger"
+					(click)="cancel()">
+
+					Cancel
+				</button>
+			</div>
+		</div>
+	</form>
+</div>

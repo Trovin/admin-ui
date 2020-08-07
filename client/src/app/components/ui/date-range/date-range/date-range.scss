@@ -1,0 +1,9 @@
+.date-range-custom {
+	min-width: 240px;
+}
+
+.open {
+	> .date-range-custom {
+		display: block;
+	}
+}

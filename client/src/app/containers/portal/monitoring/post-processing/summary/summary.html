@@ -1,0 +1,105 @@
+<page-header
+	class="block mb-4"
+	title="Post Processing Summary"
+	linkToWiki="https://wiki.go.akamai-access.com/display/BI/Post+Processing+Summary">
+
+	<ng-template #pageHeaderSubTitle>
+		This page shows errors of the post-processing Matillion jobs that are storing their errors to the dm_matillion_errors schema in Redshift.
+	</ng-template>
+</page-header>
+
+<monitoring-post-processing-summary-form
+	[loading]="loading"
+	(refreshed)="refresh()">
+</monitoring-post-processing-summary-form>
+
+<div class="col-xl-8 col-xxl-6 col-xxxl-5 p-0">
+	<div class="table-responsive mb-3">
+		<div *ngIf="loading">
+			<div
+				e2e="loading-shade"  
+				class="bhn-loading-shade">
+				<i
+					e2e="loader"
+					class="fa fa-pulse fa-spinner fa-2x"></i>
+			</div>
+		</div>
+
+		<table 
+			e2e="post-processing-table"
+			class="table table-fixed table-striped table-bordered m-0">
+			<thead >
+				<tr>
+					<th>Table Name</th>
+					<th class="text-center">Errors Count</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of items; let i = index">
+					<td class="p-2 wrap-text fixed-width">
+						<a
+							e2e="source-application"
+							[routerLink]="item.navigateTo"
+							[queryParams]="item.queryParams">
+
+							{{item.tableName}}
+						</a>
+					</td>
+
+					<td class="errors-count p-2 wrap-text fixed-width text-center">
+						<p 
+							*ngIf="!item.isDateColumnExist"
+							class="d-block cursor-pointer">
+
+							N/A
+							<span
+								class="text-warning border-0 ml-1 p-0"
+								placement="top"
+								[adaptivePosition]="false"
+								containerClass=" errors-count"
+								tooltip="Column 'galaxy_update_timestamp' is missing the table. Cannot filter by date and time">
+
+								<i class="fa fa-exclamation-triangle"></i>
+							</span>
+						</p>
+
+						<a
+							*ngIf="item.isDateColumnExist && !!item.errorsCount"
+							class="text-danger inline-block"
+							title="{{item.errorsCount}}"
+							[routerLink]="item.navigateTo"
+							[queryParams]="item.queryParams">
+
+							<i
+								e2e="error-mark"
+								class="fa fa-times-circle text-danger fa-2x"></i>
+
+							<span
+								e2e="errors-cunt"
+								class="block">
+
+								Errors: {{item.errorsCount | number}}
+							</span>
+						</a>
+
+						<span *ngIf="item.isDateColumnExist && !item.errorsCount">
+							<i
+								e2e="success"
+								class="fa fa-check-circle text-success fa-2x">
+							</i>
+						</span>
+					</td>
+				</tr>
+
+				<tr *ngIf="!items.length">
+					<td 
+						e2e="no-data"
+						colspan="2">
+		
+						No data.
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

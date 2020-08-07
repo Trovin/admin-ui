@@ -1,0 +1,16 @@
+.date-range-column-type-wrap {
+	min-width: 215px;
+}
+
+.open {
+	> .date-range-column-type-wrap {
+		display: block;
+	}
+}
+
+.audit-form .custom-select {
+	border-radius: 0;
+	border-top: 1px solid #dee2e6;
+	border-left: 1px solid #dee2e6;
+	border-right: 1px solid #dee2e6;
+}

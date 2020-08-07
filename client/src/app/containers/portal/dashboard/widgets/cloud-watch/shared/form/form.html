@@ -1,0 +1,48 @@
+<div class="widget panel panel-default d-flex align-items-center">
+	<div
+		e2e="title"
+		class="text-center text-sm-left">
+
+		{{title}}
+
+		<p>
+			<a
+				e2e="cloudwatch-metric-urls"
+				*ngIf="linkToAWSCloudWatchMetric"
+				class="ml-1 text-nowrap small"
+				[href]="linkToAWSCloudWatchMetric"
+				target="_blank">
+
+				View on CloudWatch
+				<i class="fa fa-external-link mr-1"></i>
+			</a>
+		</p>
+	</div>
+	<div class="d-flex align-items-center justify-content-sm-end flex-grow-1">
+		<div class="d-flex align-items-center">
+			<span class="text-muted small pr-3">
+				Time in UTC
+			</span>
+			<material-date-range
+				class="date-range"
+				[data]="dates"
+				[exclude]="exclude"
+				[disabled]="loading"
+				(valuesChanged)="submit($event)">
+			</material-date-range>
+		</div>
+		<div class="p-2">
+			<button
+				type="button"
+				class="btn-link border-0 outline-none pre-wrap-text cursor-pointer"
+				(click)="submit()">
+
+				<i
+					e2e="refresh"
+					class="fa fa-refresh"
+					[class.fa-spin]="loading">
+				</i>
+			</button>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,16 @@
+.audit-form {
+	.separator {
+		font-size: 1.5rem;
+	}
+}
+
+.date-range-column-type-wrap {
+	min-width: 215px;
+}
+
+.open {
+	> .date-range-column-type-wrap {
+		display: block;
+		z-index: 8;
+	}
+}

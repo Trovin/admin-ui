@@ -1,0 +1,166 @@
+<div
+	e2e="dropdown-wrapper"
+	class="dropdown-item-picker-wrap"
+	[class.dropdown-item-picker-fixed-width]="fixedWidth">
+
+	<div
+		class="dropdown-item-picker border"
+		[class.open]="open">
+
+		<div class="btn-group block">
+			<button
+				type="button"
+				[disabled]="disabled"
+				class="dropdown-btn btn-block d-flex align-items-center justify-content-center outline-none radius-none pre-wrap-text"
+				[class.text-muted]="disabled"
+				(click)="toggleOpen()">
+
+				<p class="dropdown-btn-label w-100">
+					<ng-template
+						[ngIf]="options.length"
+						[ngIfElse]="noFound">
+
+						<span
+							*ngFor="let value of values"
+							class="inline-block padding-none">
+
+							{{value.name}} {{value.helpText}}
+						</span>
+					</ng-template>
+
+					<ng-template #noFound>
+						<span class="dropdown-btn-label inline-block padding-none">
+							{{placeholder}}
+						</span>
+					</ng-template>
+				</p>
+
+				<span class="text-center padding-none pull-right">
+					<i
+						e2e="expander"
+						class="fa"
+						[class.fa-caret-down]="!open"
+						[class.fa-caret-up]="open">
+					</i>
+				</span>
+
+				<div *ngIf="loading">
+					<div
+						e2e="loading-shade"
+						class="bhn-loading-shade">
+						<i
+							e2e="loader"
+							class="fa fa-pulse fa-spinner"></i>
+					</div>
+				</div>
+			</button>
+		</div>
+
+		<div
+			e2e="dropdown"
+			class="dropdown-select-backdrop"
+			[class.open]="open"
+			(click)="open = false">
+		</div>
+
+		<div
+			*ngIf="open"
+			class="dropdown-menu-drop clearfix">
+
+			<div
+				*ngIf="search && storeOptions.length"
+				class="dropdown-search-wrap">
+
+				<label class="full-width margin-none">
+					<input
+						type="search"
+						name="search"
+						class="form-control radius-none"
+						autocomplete="off"
+						#searchElRef
+						(keyup.enter)="enter()"
+						(keyup)="searchElement(searchElRef.value, $event)">
+				</label>
+			</div>
+
+			<ul
+				e2e="options"
+				#dropdownItemPickerList
+				class="dropdown-menu margin-none dropdown-menu-right"
+				[class.show]="open">
+
+				<cdk-virtual-scroll-viewport
+					*ngIf="options.length"
+					#virtualScrollRef
+					autosize
+					class="dropdown-item-picker-viewport"
+					[itemSize]="20">
+
+					<ng-container *cdkVirtualFor="let option of options; let i=index; trackBy: trackByFn">
+						<li
+							e2e="option"
+							[class.highlighted]="option.highlighted"
+							[class.active]="option.checked"
+							[id]="i"
+							(mouseover)="onMouseOver(i)">
+
+							<a
+								*ngIf="!withRadioBtn"
+								href="javascript:void(0)"
+								data-toggle="tooltip"
+								data-placement="top"
+								title="{{option.name}} {{option.helpText}}"
+								class="dropdown-menu-text outline-none"
+								(click)="chooseOption(option)">
+
+							<span
+								class="pull-right"
+								[class.d-none]="!option.checked">
+
+								<i class="fa fa-check" aria-hidden="true"></i>
+							</span>
+
+								{{option.name}}
+								<span
+									*ngIf="option.helpText"
+									[class.text-muted]="!option.highlighted"
+									[innerHtml]="option.helpText">
+							</span>
+							</a>
+
+							<a
+								*ngIf="withRadioBtn"
+								href="javascript:void(0)"
+								class="dropdown-menu-text outline-none"
+								title="{{option.name}} {{option.helpText}}"
+								(click)="chooseOption(option)">
+
+								<label>
+									<input
+										type="radio"
+										name="dropdownItem"
+										[checked]="option.checked">
+
+									{{option.name}}
+									<span
+										*ngIf="option.helpText"
+										[class.text-muted]="!option.highlighted"
+										[innerHtml]="option.helpText">
+									</span>
+								</label>
+							</a>
+						</li>
+					</ng-container>
+				</cdk-virtual-scroll-viewport>
+
+				<li *ngIf="!options.length">
+					<span
+						e2e="no-data"
+						class="padding">
+						No Data
+					</span>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>

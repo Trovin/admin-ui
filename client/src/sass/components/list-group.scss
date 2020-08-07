@@ -1,0 +1,9 @@
+ol {
+	&.list-group {
+		list-style: decimal inside;
+	}
+
+	.list-group-item {
+		display: list-item;
+	}
+}

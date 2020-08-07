@@ -1,0 +1,38 @@
+<div class="vh-100 d-flex align-items-center justify-content-center m-0">
+	<div class="alert alert-secondary col-md-5 p-5" role="alert">
+		<h1 class="mb-2">
+			Sorry, something went wrong...
+		</h1>
+		<p class="mb-3">
+			Please, use next guide to resolve issue
+			<a
+				href="https://wiki.go.akamai-access.com/display/BI/How+to+get+acces+for+User"
+				target="_blank">
+
+				How to get acces for User
+			</a>
+
+			or try to login with
+
+			<a
+				href="javascript:void(0)"
+				(click)="login()">
+
+				Okta
+			</a>
+
+			<span class="block text-secondary">
+				Authentication error message: {{errorMessage}}
+			</span>
+		</p>
+
+		<a
+			href="javascript:void(0)"
+			(click)="logout()">
+
+			<i class="fa fa-home"></i>
+
+			Go to Home Page
+		</a>
+	</div>
+</div>

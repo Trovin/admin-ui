@@ -1,0 +1,93 @@
+<form
+	[formGroup]="form"
+	class="monitoring-form d-flex align-items-center relative m-0"
+	[class.flex-column]="isEdit">
+
+	<div
+		*ngIf="isEdit"
+		class="form-group w-100 mb-2">
+
+		<label class="block relative">
+			<div *ngIf="loading">
+				<div
+					e2e="loading-shade"
+					class="bhn-loading-shade">
+					<i
+						e2e="loader"
+						class="fa fa-pulse fa-spinner fa-lg"></i>
+				</div>
+			</div>
+			<textarea
+				class="form-control form-control-sm"
+				[disabled]="loading"
+				formControlName="message">
+			</textarea>
+		</label>
+	</div>
+
+	<div
+		*ngIf="!isEdit"
+		class="flex-grow-1">
+
+		<ng-template [ngIf]="form.get('message').value">
+			<div
+				class="pre-wrap-text"
+				[innerHTML]="form.get('message').value">
+			</div>
+		</ng-template>
+		<ng-template [ngIf]="!form.get('message').value">
+			<span
+				*permissions="{ container: containers.UNKNOWN_FIELDS, permissions: [permission.UPDATE] }"
+				class="text-muted">
+				Press <i class="fa fa-pencil-square-o"></i> on the right to add a comment
+			</span>
+		</ng-template>
+	</div>
+
+	<div *ngIf="!isEdit">
+		<button
+			*permissions="{ container: containers.UNKNOWN_FIELDS, permissions: [permission.UPDATE] }"
+			type="button"
+			class="btn btn-link outline-none cursor-pointer"
+			title="Edit"
+			[disabled]="loading"
+			(click)="editToggle()">
+
+			<i
+				*ngIf="!loading"
+				class="fa fa-pencil-square-o fa-lg"></i>
+
+			<i
+				*ngIf="loading"
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-lg"></i>
+		</button>
+	</div>
+
+	<div
+		*ngIf="isEdit"
+		class="d-flex w-100 justify-content-end">
+
+		<button
+			*ngIf="isEdit"
+			type="button"
+			class="btn btn-link btn-sm outline-none cursor-pointer"
+			title="Cancel"
+			[disabled]="loading"
+			(click)="cancelEdit()">
+
+			Cancel
+		</button>
+
+		<button
+			type="button"
+			class="btn btn-success btn-sm outline-none cursor-pointer"
+			title="Save"
+			[disabled]="loading"
+			(click)="save()">
+
+			Save
+		</button>
+
+	</div>
+</form>

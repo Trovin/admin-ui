@@ -1,0 +1,91 @@
+
+		<div class="modal-content">
+			<div class="modal-header d-flex align-items-center justify-content-between">
+				<div>
+					<b>{{title}}</b>
+				</div>
+
+				<button
+					type="button"
+					class="close pull-right"
+					data-dismiss="alert"
+					aria-label="Close"
+					(click)="decline()">
+
+					<i
+						e2e="close-icon"
+						class="fa fa-times"
+						[class.d-none]="loading"></i>
+
+					<i
+						e2e="loader"
+						class="fa fa-pulse fa-spinner"
+						[class.d-none]="!loading"></i>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form
+					class="mt-2 mb-2"
+					[formGroup]="form"
+					(ngSubmit)="submit()">
+
+					<div
+						*ngIf="action !== modalActions.DELETE"
+						class="form-group d-flex flex-column mb-4 relative">
+
+						<div *ngIf="loading">
+							<div
+								e2e="loading-shade"
+								class="bhn-loading-shade">
+
+								<i
+									e2e="loader"
+									class="fa fa-pulse fa-spinner fa-2x"></i>
+							</div>
+						</div>
+
+						<label>
+							Widget Definition:
+
+							<textarea
+								class="form-control form-control-sm"
+								rows="20"
+								cols="50"
+								[readonly]="loading"
+								formControlName="widgetDefinition"
+								[value]="form.get('widgetDefinition').value">
+							</textarea>
+						</label>
+
+						<form-message [control]="form.get('widgetDefinition')"></form-message>
+					</div>
+
+					<div class="text-center">
+						<div class="btn-group">
+							<button
+								class="btn btn-success"
+								type="submit"
+								[disabled]="loading">
+
+								<ng-template
+									[ngIf]="action === modalActions.DELETE"
+									[ngIfElse]="elseBlock">
+
+									Delete
+								</ng-template>
+								<ng-template #elseBlock>
+									Apply
+								</ng-template>
+							</button>
+							<button
+								type="button"
+								class="btn btn-danger"
+								(click)="decline()">
+
+								Cancel
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>

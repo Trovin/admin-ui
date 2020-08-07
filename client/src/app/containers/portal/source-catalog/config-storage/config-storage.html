@@ -1,0 +1,309 @@
+<div class="d-flex align-items-start">
+	<button
+		class="btn btn-outline-dark p-1 pl-2 pr-2 mr-2 border-none"
+		title="Back to Source catalog"
+		(click)="goToBack()">
+
+		<i class="fa fa-arrow-left fa-lg"></i>
+	</button>
+
+	<page-header title="Configurations"></page-header>
+</div>
+
+
+<div *ngIf="!params.sourceApplication || !params.eventId">
+	<div class="alert alert-danger p-2 pl-3 pr-3 mt-3 mb-3 small">
+		<i class="fa fa-exclamation-triangle mr-2"></i>
+		Required parameters are not set! Go back to the catalog and try again
+	</div>
+</div>
+
+<div [class.d-none]="!params.sourceApplication || !params.eventId">
+	<div class="row mb-2">
+		<div class="col-12 col-lg-6 col-xxl-6 d-flex flex-column">
+			<div class="d-flex mb-2">
+				<div class="mr-3">
+					Source Application: <b>{{params.sourceApplication}}</b>
+				</div>
+
+				<div class="mr-3">
+					Event ID: <b>{{params.eventId}}</b>
+				</div>
+			</div>
+
+			<div class="d-flex overflow-hidden">
+				<div class="alert alert-secondary config-params-box mb-0 p-2 d-flex small">
+					<div class="mr-3 text-nowrap">
+						Explode:
+
+						<ng-template
+							[ngIf]="loading"
+							[ngIfElse]="explodeResultBlock">
+
+							<i
+								class="fa fa-refresh"
+								[class.fa-spin]="loading">
+							</i>
+						</ng-template>
+
+						<ng-template #explodeResultBlock>
+							<b>{{config.explode}}</b>
+						</ng-template>
+					</div>
+
+					<div
+						class="flex-fill"
+						[ngClass]="[!isShowMoreMatillionMessage && config.matillionMessageBody ? 'ellipsis-text' : 'pre-wrap-text']">
+
+						Matillion Message:
+
+						<ng-template
+							[ngIf]="loading"
+							[ngIfElse]="matillionMessageResultBlock">
+
+							<i
+								class="fa fa-refresh"
+								[class.fa-spin]="loading">
+							</i>
+						</ng-template>
+
+						<ng-template #matillionMessageResultBlock>
+							<b>{{config.matillionMessageBody || 'none'}}</b>
+						</ng-template>
+					</div>
+
+					<button
+						type="button"
+						class="btn btn-link text-nowrap p-0 ml-1"
+						[class.d-none]="isShowMoreMatillionMessage || !config.matillionMessageBody"
+						(click)="showMore()">
+
+						show more
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12 col-lg-6 col-xxl-6 mt-2 d-flex justify-content-end align-items-end">
+			<div class="d-flex">
+				<div class="in-process-bar d-flex align-items-center mr-4">
+					<div
+						*ngIf="isCheckingOnExecuteFile"
+						class="preloader in-process text-success d-flex align-items-center justify-content-center ml-3">
+
+						<i class="icon fa fa-play-circle fa-lg"></i>
+					</div>
+
+					<div
+						*ngIf="isCheckingOnUploadFile"
+						class="preloader in-process text-warning d-flex align-items-center justify-content-center ml-3">
+
+						<i class="icon fa fa-upload fa-lg"></i>
+					</div>
+				</div>
+
+				<label class="btn btn-success cursor-pointer btn-sm p-2 d-flex align-items-center mr-2">
+					<i class="fa fa-upload fa-lg mr-2"></i>
+					<span class="small">Update from CSV</span>
+
+					<input
+						class="d-none"
+						name="file"
+						multiple
+						type="file"
+						[disabled]="loading || isCheckingOnUploadFile || isCheckingOnExecuteFile"
+						(change)="upload($event.target)">
+				</label>
+
+				<button
+					type="button"
+					class="btn btn-primary btn-sm p-2 mr-2 border-none"
+					title="Generate draft config"
+					[disabled]="loading || !items.length"
+					(click)="openConfigModal()">
+
+					<span class="small">Generate draft config</span>
+				</button>
+
+				<button
+					class="btn btn-primary btn-sm p-2 mr-2 border-none"
+					title="Download as CSV"
+					[disabled]="loading || !items.length"
+					(click)="downloadCSV(config)">
+
+					<i class="fa fa-download fa-lg mr-2"></i>
+					<span class="small">Download as CSV</span>
+				</button>
+
+				<button
+					e2e="refresh"
+					class="btn btn-dark btn-sm p-2"
+					type="button"
+					title="Refresh"
+					[disabled]="loading"
+					(click)="fetch()">
+
+					<i
+						class="fa fa-refresh mr-2"
+						[class.fa-spin]="loading">
+					</i>
+
+					<span class="small">Refresh</span>
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<ng-template
+		[ngIf]="errorMsg"
+		[ngIfElse]="content">
+
+		<div class="alert alert-danger p-2 pl-3 pr-3 mt-3 mb-3 small">
+			<i class="fa fa-exclamation-triangle mr-2"></i>
+			{{errorMsg}}
+		</div>
+	</ng-template>
+
+	<ng-template #content>
+		<div class="config-list table-responsive relative mb-3">
+			<div *ngIf="loading">
+				<div
+					e2e="loading-shade"
+					class="bhn-loading-shade">
+
+					<i
+						e2e="loader"
+						class="fa fa-pulse fa-spinner fa-2x"></i>
+				</div>
+			</div>
+
+			<table class="table table-sm table-hover table-striped table-bordered mb-0">
+				<thead>
+					<tr>
+						<th
+							rowspan="2"
+							class="align-middle">
+
+							Schema name
+						</th>
+
+						<th
+							rowspan="2"
+							class="align-middle">
+
+							Table name
+						</th>
+
+						<th
+							colspan="3"
+							class="align-middle text-center">
+
+							Configurations for:
+						</th>
+
+						<th
+							rowspan="2"
+							class="text-center align-middle">
+
+							Details
+						</th>
+					</tr>
+					<tr>
+						<th class="align-middle text-center">
+							Columns
+						</th>
+
+						<th class="align-middle text-center">
+							Primary keys
+						</th>
+
+						<th class="align-middle text-center">
+							Order
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr
+						*ngFor="let item of items;"
+						[class.table-primary]="item === selectedItem"
+						(click)="selectConfig(item)">
+
+						<td class="align-middle fixed-width pre-wrap-text">
+							{{item.schemaName}}
+						</td>
+
+						<td class="align-middle">
+							{{item.tgTableName}}
+						</td>
+
+						<td class="align-middle text-center">
+							{{item.metaColumns.length}}
+						</td>
+
+						<td class="align-middle text-center">
+							{{item.pkColumns.length}}
+						</td>
+
+						<td class="align-middle text-center">
+							{{item.orderColumns.length}}
+						</td>
+
+						<td
+							e2e="actions-dropdown"
+							class="text-center align-middle">
+
+							<button
+								class="btn btn-outline-primary btn-sm p-1 pl-2 pr-2 border-none"
+								title="Select Config"
+								(click)="selectConfig(item)">
+
+								See details
+							</button>
+
+							<a
+								class="btn btn-outline-primary btn-sm p-1 pl-2 border-none"
+								[routerLink]="['/portal/redshift-tables']"
+								[queryParams]="{'selected': item.schemaName + ',' + item.tgTableName}">
+
+								See all sources
+							</a>
+						</td>
+					</tr>
+
+					<tr *ngIf="!items.length && !loading">
+						<td
+							e2e="no-data"
+							colspan="6">
+							<b>No data.</b>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div
+			*ngIf="items.length && !loading"
+			class="mt-4">
+
+			<div class="h4">
+				Table configurations details:
+			</div>
+
+			<ng-template
+				[ngIf]="selectedItem"
+				[ngIfElse]="notSelectItemBlock">
+
+				<div class="card bg-light p-2">
+					<config-details [item]="selectedItem"></config-details>
+				</div>
+			</ng-template>
+
+			<ng-template #notSelectItemBlock>
+				<div class="alert alert-info p-2 pl-3 pr-3 mt-3 mb-3 small">
+					<i class="fa fa-exclamation-triangle mr-2"></i>
+					Click on the "See details" button to view configuration details
+				</div>
+			</ng-template>
+		</div>
+	</ng-template>
+</div>

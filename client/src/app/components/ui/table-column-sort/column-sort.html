@@ -1,0 +1,16 @@
+<span class="d-inline-flex flex-column pl-2 pr-0">
+	<button
+		class="btn btn-link p-0 lh-0"
+		[class.d-none]="sort.direction === sortDirection.DESC"
+		(click)="changeSort(sortDirection.ASC)">
+
+		<i class="fa fa-angle-up fa-lg"></i>
+	</button>
+	<button
+		class="btn btn-link p-0 lh-0"
+		[class.d-none]="sort.direction === sortDirection.ASC"
+		(click)="changeSort(sortDirection.DESC)">
+
+		<i class="fa fa-angle-down fa-lg"></i>
+	</button>
+</span>

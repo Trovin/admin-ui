@@ -1,0 +1,56 @@
+<div>
+	<button
+		type="button"
+		class="btn btn-outline-dark border-none mb-3"
+		title="Back to Source catalog"
+		(click)="goToBack()">
+
+		<i class="fa fa-arrow-left fa-lg"></i>
+		<span class="inline-block ml-2">Go back</span>
+	</button>
+</div>
+
+<form
+	e2e="search-section"
+	class="col col-xl-4 mb-4 p-3 border inline-block"
+	[formGroup]="form"
+	ngNativeValidate
+	(keydown.enter)="$event.preventDefault()"
+	(ngSubmit)="submit()">
+
+	<h5 class="mb-3">
+		Maintain Stores
+	</h5>
+
+	<div class="mb-3">
+		<div class="form-group mb-3">
+			<label class="w-100">
+				Channel
+
+				<dropdown-item-picker
+					e2e="sales-years-type-dropdown"
+					#channelsList
+					class="block w-100"
+					placeholder="Select channel"
+					[fixedWidth]="false"
+					[loading]="loadingChannels"
+					[class.is-invalid]="form.get('channel').touched && form.get('channel').errors"
+					[dataObservable]="channelsSubj"
+					(paramsChanged)="changedChannels($event[0].value)">
+				</dropdown-item-picker>
+			</label>
+
+			<form-message [control]="form.get('channel')"></form-message>
+		</div>
+	</div>
+
+	<div class="btn-group">
+		<button
+			e2e="apply"
+			type="submit"
+			class="btn btn-success rounded">
+
+			Select
+		</button>
+	</div>
+</form>

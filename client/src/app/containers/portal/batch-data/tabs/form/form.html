@@ -1,0 +1,180 @@
+<form
+	e2e="search-section"
+	class="audit-form form-horizontal mb-4"
+	ngNativeValidate
+	(submit)="submit()">
+
+	<div class="d-flex flex-column flex-lg-row align-items-start">
+		<div class="flex-fill col-12 col-lg-9 p-0">
+			<div class="d-flex flex-column flex-lg-row align-items-lg-center flex-wrap">
+				<label
+					for="dateRangeType"
+					class="col-form-label text-nowrap p-1">
+
+					<b>
+						Data from:
+					</b>
+				</label>
+
+				<div class="d-flex flex-fill flex-column flex-lg-row align-items-stretch align-items-lg-center flex-wrap">
+					<div class="p-1 flex-fill">
+						<dropdown-item-picker
+							e2e="source-app-dropdown"
+							class="block w-100"
+							#sourceApplications
+							placeholder="Select Source"
+							[class.is-invalid]="!params.sourceApplication && isFormInvalid"
+							[fixedWidth]="false"
+							[disabled]="sourceApplications.loading || loading"
+							[dataObservable]="sourceApplicationsSubj"
+							(paramsChanged)="changeSource($event[0].value)">
+						</dropdown-item-picker>
+
+						<div
+							class="invalid-feedback audit-form-msg mt-0"
+							[class.d-block]="!params.sourceApplication && isFormInvalid">
+							Source is required
+						</div>
+					</div>
+
+					<span class="d-none bold separator d-lg-inline-block p-1">
+						/
+					</span>
+
+					<div class="p-1">
+						<dropdown-item-multi-picker
+							e2e="event-type-dropdown"
+							class="block w-100"
+							#eventIds
+							placeholder="All Event Types"
+							placeholderEmpty="Select Event Type"
+							multiple="true"
+							[fixedWidth]="true"
+							[class.is-invalid]="!params.eventIds && params.sourceApplication && isFormInvalid"
+							[disabled]="loading || !params.sourceApplication || sourceApplications.loading"
+							[dataObservable]="eventIdsSubj"
+							(paramsChanged)="changeEventId($event)">
+						</dropdown-item-multi-picker>
+
+						<div
+							class="invalid-feedback audit-form-msg mt-0"
+							[class.d-block]="!params.eventIds && params.sourceApplication && isFormInvalid">
+
+							Event Type is required
+						</div>
+					</div>
+
+					<div class="p-1 flex-fill">
+						<dropdown-item-picker
+							#reconFilter
+							class="d-block w-100"
+							[search]="false"
+							[withRadioBtn]="true"
+							[fixedWidth]="false"
+							[data]="filterByOptions"
+							[disabled]="loading"
+							[defaultValue]="filterByOptions[0]"
+							(paramsChanged)="changedFilterByOption($event[0].value)">
+						</dropdown-item-picker>
+					</div>
+
+					<!-- <div
+						class="dropdown-select-backdrop"
+						[class.open]="open"
+						(click)="close()">
+					</div> -->
+
+					<button
+						e2e="expand-advanced-filters"
+						class="btn btn-outline-primary border-none text-nowrap p-2 ml-lg-3 mr-lg-3"
+						type="button"
+						(click)="toggleFilter()">
+
+						<i class="fa fa-filter fa-lg"></i>
+						<i
+							class="fa small fa-fw"
+							[class.fa-chevron-down]="!isOpenFilter"
+							[class.fa-times]="isOpenFilter">
+						</i>
+					</button>
+				</div>
+
+			</div>
+
+			<div
+				*ngIf="isOpenFilter"
+				class="d-flex flex-column flex-lg-row mt-3 p-1 pl-lg-0">
+
+				<label
+					for="dateRangeType"
+					class="d-flex p-1 mr-1 justify-content-xl-end align-items-center col-form-label text-nowrap">
+
+					<b>
+						File name:
+					</b>
+				</label>
+
+				<div class="d-flex flex-column flex-lg-row align-items-lg-center w-100">
+					<div class="flex-grow-1">
+						<input
+							e2e="file-name-input"
+							class="form-control radius-none"
+							type="text"
+							[disabled]="loading"
+							[(ngModel)]="params.objectKey"
+							[ngModelOptions]="{standalone: true}">
+					</div>
+
+					<div class="d-flex flex-column flex-lg-row align-items-lg-center">
+						<label class="d-flex justify-content-lg-end align-items-center col-form-label pr-3 pl-lg-4">
+							<b>
+								Date:
+							</b>
+						</label>
+
+						<material-date-range
+							class="date-range"
+							[data]="dates"
+							[disabled]="loading"
+							[exclude]="excludeTimeFilterRange"
+							[defaultData]="defaultDates"
+							(valuesChanged)="applyDates($event)">
+						</material-date-range>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="d-flex">
+			<div class="btn-group p-1">
+				<button
+					e2e="apply"
+					class="btn btn-dark rounded border-none"
+					type="submit"
+					[disabled]="loading">
+
+					Show
+				</button>
+			</div>
+
+			<div class="p-1 d-flex flex-row align-items-center">
+				<button
+					type="button"
+					class="btn btn-link border-none"
+					title="Download table data in csv"
+					[disabled]="downloadLoading"
+					(click)="downloadFile()">
+
+					<i class="fa fa-download fa-lg"></i>
+					Download CSV
+				</button>
+
+				<i
+					e2e="loader"
+					*ngIf="downloadLoading"
+					class="fa fa-pulse fa-spinner">
+				</i>
+			</div>
+		</div>
+	</div>
+</form>

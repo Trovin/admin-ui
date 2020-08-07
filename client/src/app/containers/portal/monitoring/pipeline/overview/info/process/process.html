@@ -1,0 +1,162 @@
+<h3
+	e2e="subtitle"
+	class="page-sub-title border-bottom m-0 pb-3">
+
+	{{processTypeName}}
+</h3>
+
+<div class="table-responsive relative mb-3">
+	<div *ngIf="loading">
+		<div
+			e2e="loading-shade"  
+			class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<table class="table m-0">
+		<tbody>
+			<tr>
+				<td
+					colspan="4"
+					class="pl-1 border-none">
+
+					<b>Input:</b>
+				</td>
+			</tr>
+			<tr *ngIf="items.inputData && !loading">
+				<td></td>
+				<td e2e="input-files">
+					files: {{items.inputData.rawFilesCount | number}}
+				</td>
+				<td e2e="input-events">
+					<span
+						e2e="input-rows"
+						*ngIf="processtype.getByAlias(params.process) === processtype.BATCH; else elseBlock">
+
+						rows: {{items.inputData.eventsCount | number}}
+					</span>
+					<ng-template #elseBlock>
+						events: {{items.inputData.eventsCount | number}}
+					</ng-template>
+				</td>
+				<td class="text-center">
+					<i
+						e2e="input-success-mark"
+						*ngIf="!items.inputData.errorsCount"
+						class="fa fa-check-circle text-success">
+					</i>
+
+					<a
+						*ngIf="!!items.inputData.errorsCount"
+						class="text-danger inline-block"
+						[routerLink]="errorDetailsPageUrl"
+						[queryParams]="{'processOperation': processOperationType.INPUT}"
+						queryParamsHandling="merge">
+
+						<i
+							e2e="input-error-mark"
+							class="fa fa-times-circle text-danger"></i>
+
+						<span
+							e2e="input-error-count"
+							class="block">
+
+							Errors: {{items.inputData.errorsCount | number}}
+						</span>
+					</a>
+				</td>
+			</tr>
+		</tbody>
+
+		<tbody>
+			<tr>
+				<td
+					colspan="4"
+					class="pl-1">
+
+					<b>Output:</b>
+				</td>
+			</tr>
+			<tr
+				*ngFor="let item of items.outputData; let i = index"
+				[class.d-none]="!items.outputData.length && loading">
+
+				<td e2e="output-name">
+					{{item.name}}
+				</td>
+
+				<td e2e="output-file-count">
+						files:
+						<span *ngIf="processtype.REDSHIFT_DATA_COPY !== processtype.getByAlias(params.process); else elseBlock">
+							{{item.rawFilesCount | number}}
+						</span>
+						<ng-template #elseBlock>
+							-
+						</ng-template>
+				</td>
+
+				<td e2e="output-event-count">
+					events:
+					<span *ngIf="processtype.REDSHIFT_DATA_COPY !== processtype.getByAlias(params.process); else elseBlock">
+						{{item.eventsCount | number}}
+					</span>
+					<ng-template #elseBlock>
+						-
+					</ng-template>
+				</td>
+
+				<td class="text-center">
+					<i
+						e2e="output-success-mark"
+						*ngIf="!item.errorsCount"
+						class="fa fa-check-circle text-success">
+					</i>
+
+					<a
+						*ngIf="!!item.errorsCount"
+						class="text-danger inline-block"
+						[routerLink]="errorDetailsPageUrl"
+						[queryParams]="{'processOperation': item.name || processOperationType.OUTPUT}"
+						queryParamsHandling="merge">
+
+						<i
+							e2e="output-error-mark"
+							class="fa fa-times-circle text-danger"></i>
+
+						<span
+							e2e="output-error-count"
+							class="block">
+							Errors: {{item.errorsCount | number}}
+						</span>
+					</a>
+				</td>
+			</tr>
+		</tbody>
+
+		<tbody *ngIf="!items.inputData && !items.outputData.length && !loading">
+			<tr>
+				<td
+					e2e="no-data"
+					colspan="4">
+					No data.
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<p>
+	<a
+		e2e="see-full-list"
+		href="javascript:void(0)"
+		class="p-2"
+		[routerLink]="['/portal', 'audit', params.process]"
+		[queryParams]="auditPageQueryParams"
+		queryParamsHandling="merge">
+
+		See full list...
+	</a>
+</p>

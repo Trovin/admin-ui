@@ -1,0 +1,244 @@
+<page-header
+	class="block mb-4"
+	title="S3 Alarms Configurations"
+	linkToWiki="https://wiki.go.akamai-access.com/display/BI/S3+Alarms+Configurations">
+
+	<ng-template #pageHeaderSubTitle>
+		This page allows to configure S3 file alarms, enable/disable each alarm, search for existing S3 alarms by different criteria.
+	</ng-template>
+</page-header>
+
+<alarm-data-form
+	[loading]="loading"
+	(create)="create()"
+	[buckets]="bucketListSubj"
+	[selectedConfigs]="selectedConfigs"
+	(deleteSelected)="deleteSelected()"
+	(changed)="performSearch($event)">
+</alarm-data-form>
+
+<div class="table-responsive relative">
+	<div *ngIf="loading">
+		<div
+			e2e="loading-shade"
+			class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<table class="table table-bordered table-sm table-hover">
+		<thead>
+			<tr>
+				<th scope="col" class="align-middle">
+					Bucket
+				</th>
+				<th scope="col" class="align-middle">
+					Source Prefix
+				</th>
+				<th scope="col" class="align-middle">
+					Check time
+					<div class="small text-muted">(cron exp.)</div>
+				</th>
+				<th scope="col" class="align-middle">
+					Cron exp. description
+					<div class="small text-muted">(UTC time zone)</div>
+				</th>
+				<th scope="col" class="align-middle text-center">
+					Max
+					<span class="nowrap-text">
+						file age
+					</span>
+					<div class="small text-muted">(hours)</div>
+				</th>
+				<th scope="col" class="align-middle text-center">
+					SNS
+					<div class="small text-muted nowrap-text">custom topic</div>
+				</th>
+				<th scope="col" class="align-middle text-center">
+					Current Status
+				</th>
+				<th scope="col" class="align-middle text-center">
+					<span class="nowrap-text">
+						Last Check
+					</span>
+					Date
+					<div class="small text-muted">(UTC time zone)</div>
+				</th>
+				<th scope="col" class="align-middle text-center">
+					<span class="nowrap-text">
+						Next Check
+					</span>
+					Date
+					<div class="small text-muted">(UTC time zone)</div>
+				</th>
+				<th
+					*permissions="{ container: containers.S3_ALARMS_CONFIGS, permissions: [permission.UPDATE] }"
+					scope="col" class="text-center align-middle">
+					ON/OFF
+				</th>
+				<th scope="col" class="text-center align-middle">
+					Actions
+				</th>
+				<th scope="col" class="align-middle text-center p-2">
+					<input
+						type="checkbox"
+						[checked]="isSelectedAll"
+						(change)="selectedAll($event.target)">
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr
+				*ngFor="let item of items; let i = index"
+				[class.text-muted]="!item.active">
+
+				<td class="align-middle text-nowrap">
+					{{item.bucket}}
+
+					<a
+						e2e="find-on-s3"
+						[href]="composeS3Url(item.bucket)"
+						target="_blank">
+		
+						<i class="fa fa-share-square-o mr-1"></i>
+					</a>
+				</td>
+
+				<td class="align-middle text-nowrap" style="word-break:break-word">
+					{{item.sourcePrefix}}
+				</td>
+
+				<td class="align-middle text-nowrap">
+					<b>{{item.cronExpression}}</b>
+				</td>
+
+				<td class="align-middle small text-muted fixed-width">
+					<small>{{item.cronDescription}}</small>
+				</td>
+
+				<td class="align-middle text-center">
+					{{item.durationHours}}
+				</td>
+
+				<td class="align-middle text-center">
+					<i
+						*ngIf="!!item.customSnsTopicArn"
+						class="fa fa-check-circle text-info">
+					</i>
+				</td>
+
+				<td
+					class="align-middle text-center"
+					[ngClass]="{ 'text-success': item.currentStatus === 'OK', 'text-danger bold': item.currentStatus === 'ALARM' }">
+					{{item.currentStatus}}
+				</td>
+
+				<td class="align-middle text-center">
+					{{item.lastCheckDate}}
+				</td>
+
+				<td class="align-middle text-center">
+					<span *ngIf="item.active">
+						{{item.nextCheckDate}}
+					</span>
+
+					<span *ngIf="!item.active"> - </span>
+				</td>
+
+				<td
+					*permissions="{ container: containers.S3_ALARMS_CONFIGS, permissions: [permission.UPDATE] }"
+					class="align-middle text-center">
+
+					<switch-control
+						*permissions="{ container: containers.S3_ALARMS_CONFIGS, permissions: [permission.UPDATE] }"
+						[active]="item.active"
+						[loading]="item.loading"
+						[disabled]="item.disabled || loading"
+						(changed)="switchConfigState($event, item)">
+					</switch-control>
+				</td>
+
+				<td
+					class="fixed-width align-middle text-center text-nowrap">
+
+					<button
+						*permissions="{ container: containers.S3_ALARMS_CONFIGS, permissions: [permission.UPDATE] }"
+						class="btn btn-outline-dark border-none p-1 pl-2 pr-2"
+						type="button"
+						title="Edit"
+						(click)="edit(item)">
+
+						<i
+							e2e="edit"
+							class="fa fa-pencil">
+						</i>
+					</button>
+					<button
+						*permissions="{ container: containers.S3_ALARMS_CONFIGS, permissions: [permission.UPDATE] }"
+						class="btn btn-outline-dark border-none p-1 pl-2 pr-2"
+						type="button"
+						title="Copy"
+						(click)="copy(item)">
+
+						<i
+							e2e="copy"
+							class="fa fa-clone">
+						</i>
+					</button>
+					<button
+						*permissions="{ container: containers.S3_ALARMS_CONFIGS, permissions: [permission.DELETE] }"
+						class="btn btn-outline-dark border-none p-1 pl-2 pr-2"
+						type="button"
+						title="Delete"
+						(click)="delete(item)">
+
+						<i
+							e2e="delete"
+							class="fa fa-trash">
+						</i>
+					</button>
+				</td>
+				<td class="align-middle text-center p-2">
+					<input
+						type="checkbox"
+						[checked]="item.selected"
+						(change)="selected(item, $event.target)">
+				</td>
+			</tr>
+
+			<tr *ngIf="!items.length && !loading">
+				<td
+					e2e="no-data"
+					colspan="11">
+
+					No data.
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div
+	*ngIf="items && items.length && pagination.totalItems > pagination.itemsPerPage"
+	class="row">
+
+	<div class="col-12">
+		<paginator
+			[loading]="loading"
+			[itemsPerPage]="pagination.itemsPerPage"
+			[totalItems]="pagination.totalItems"
+			[page]="pagination.page"
+			(changed)="pageChanged($event.page)">
+		</paginator>
+	</div>
+</div>
+
+<ng-template #template>
+	<div class="modal-body text-center">
+		<p>Do you want to confirm?</p>
+		<button type="button" class="btn btn-default" (click)="confirm()" >Yes</button>
+		<button type="button" class="btn btn-primary" (click)="decline()" >No</button>
+	</div>
+</ng-template>

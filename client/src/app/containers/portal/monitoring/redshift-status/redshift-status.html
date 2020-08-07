@@ -1,0 +1,231 @@
+<page-header
+	class="block mb-4"
+	title="Redshift Status"
+	linkToWiki="https://wiki.go.akamai-access.com/display/BI/Redshift+Status"
+	[isShowRefreshBtn]="true"
+	[setLoadingStatus]="isLoadingQueriesStatusesData || isLoadingStatusData"
+	(refreshed)="refresh()">
+
+	<ng-template #pageHeaderSubTitle>
+		The page allows to see all DB locks and all active queries on Redshift DB.
+	</ng-template>
+</page-header>
+
+<div class="h5 mb-2">Currently running queries:</div>
+
+<div class="table-responsive relative mb-4">
+	<div *ngIf="isLoadingQueriesStatusesData">
+		<div 
+			e2e="loading-shade" 
+			class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<table
+		e2e="batch-data-table"
+		class="table table-sm table-hover table-bordered m-0">
+		<thead>
+			<tr>
+				<th class="text-center align-middle">User Name</th>
+				<th class="text-center align-middle">DB Name</th>
+				<th class="text-center align-middle">Pid</th>
+				<th class="align-middle">Query</th>
+				<th class="text-center align-middle">
+					Start Time
+					<span class="text-muted small">({{timezone}})</span>
+				</th>
+				<th class="text-center align-middle">Duration</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr
+				e2e="redshift-queries-row"
+				*ngFor="let item of queriesItems">
+
+				<td
+					e2e="user-name"
+					class="text-center align-middle">
+
+					{{item.userName}}
+				</td>
+				<td
+					e2e="db-name"
+					class="text-center align-middle">
+
+					{{item.dbName}}
+				</td>
+				<td
+					e2e="pid"
+					class="text-center align-middle">
+
+					{{item.pid}}
+				</td>
+				<td
+					e2e="query"
+					class="fixed-width align-middle">
+
+					<div class="d-flex align-items-center">
+						<code
+							class="block"
+							[class.ellipsis-text]="!item.isShowMore">
+
+							{{item.query}}
+						</code>
+						<button
+							type="button"
+							class="btn btn-link text-nowrap p-0 ml-1"
+							[class.d-none]="item.isShowMore"
+							(click)="showMore(item)">
+
+							show more
+						</button>
+					</div>
+
+				</td>
+				<td
+					e2e="start-time"
+					class="text-center align-middle">
+
+					{{item.startTime | dateTimeFormat: 'yyyy-MM-dd HH:mm:ss'}}
+				</td>
+				<td
+					e2e="duration"
+					class="text-center align-middle">
+
+					{{item.duration}}
+				</td>
+			</tr>
+
+			<tr *ngIf="!queriesItems.length && !isLoadingQueriesStatusesData">
+				<td
+					e2e="no-data"
+					class="text-center p-2"
+					colspan="6">
+
+					<b>No query processing at the moment</b>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div class="h5 mb-2">List of locked tables:</div>
+
+<div class="table-responsive relative mb-3">
+	<div *ngIf="isLoadingStatusData">
+		<div class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<table
+		e2e="redshift-status-table"
+		class="table table-sm table-hover table-bordered m-0">
+
+		<thead>
+			<tr>
+				<th class="text-center align-middle">Owner</th>
+				<th class="text-center align-middle">DB Name</th>
+				<th class="text-center align-middle">Xid</th>
+				<th class="text-center align-middle">Pid</th>
+				<th class="align-middle">Lock Mode</th>
+				<th class="text-center align-middle">Table Id</th>
+				<th class="text-center align-middle">Table Name</th>
+				<th class="text-center align-middle">Granted</th>
+				<th class="text-center align-middle">Blocking Pid</th>
+				<th class="text-center align-middle">
+					Start Time
+					<span class="text-muted small">({{timezone}})</span>
+				</th>
+				<th class="text-center align-middle">Duration</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr
+				e2e="redshift-status-row"
+				*ngFor="let item of items">
+
+				<td
+					e2e="owner"
+					class="text-center align-middle">
+
+					{{item.owner}}
+				</td>
+				<td
+					e2e="db-name"
+					class="text-center align-middle">
+
+					{{item.db}}
+				</td>
+				<td
+					e2e="xid"
+					class="text-center align-middle">
+
+					{{item.xid}}
+				</td>
+				<td
+					e2e="pid"
+					class="text-center align-middle">
+
+					{{item.pid}}
+				</td>
+				<td
+					e2e="lock-mode"
+					class="align-middle">
+
+					{{item.lockMode}}
+				</td>
+				<td
+					e2e="table-id"
+					class="text-center align-middle">
+
+					{{item.tableId}}
+				</td>
+				<td
+					e2e="table-name"
+					class="fixed-width align-middle">
+
+					{{item.tableName}}
+				</td>
+				<td
+					e2e="granted"
+					class="text-center align-middle">
+
+					{{item.granted}}
+				</td>
+				<td
+					e2e="blocking-pid"
+					class="text-center align-middle">
+
+					{{item.blockingPid}}
+				</td>
+				<td
+					e2e="start-time"
+					class="text-center align-middle">
+
+					{{item.startTime | dateTimeFormat: 'yyyy-MM-dd HH:mm:ss'}}
+				</td>
+				<td
+					e2e="duration"
+					class="text-center align-middle">
+
+					{{item.duration}}
+				</td>
+			</tr>
+
+			<tr *ngIf="!items.length && !isLoadingStatusData">
+				<td
+					e2e="no-data"
+					colspan="11">
+
+					<b>No locked tables</b>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

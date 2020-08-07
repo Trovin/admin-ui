@@ -1,0 +1,114 @@
+<div class="modal-header d-flex flex-row align-items-top">
+	<h4 class="modal-title pull-left">{{title}}</h4>
+
+	<button
+		class="close pull-right"
+		type="button"
+		(click)="closeModal()">
+
+		<i
+			class="fa"
+			[ngClass]="{
+					'fa-times': !submitted,
+					'fa-pulse fa-spinner fa-spin': submitted
+				}">
+		</i>
+	</button>
+</div>
+
+<div class="modal-body">
+	<form
+		[formGroup]="form"
+		(ngSubmit)="submit()">
+
+		<div class="mb-4">
+			<div class="form-group mb-3">
+				<label class="w-100">
+					<b>Channel</b>
+
+					<input
+						id="channel"
+						type="text"
+						name="channel"
+						placeholder="Select channel"
+						class="form-control"
+						[attr.disabled]="submitted || action === modalActions.UPDATE ? '' : null"
+						[class.is-invalid]="form.get('channel').touched && form.get('channel').errors"
+						formControlName="channel"/>
+				</label>
+
+				<form-message [control]="form.get('channel')"></form-message>
+			</div>
+
+			<div class="form-group d-flex flex-column">
+				<label for="channelLogo"><b>Image</b></label>
+				<input
+					id="channelLogo"
+					type="text"
+					name="channelLogo"
+					placeholder="Image"
+					class="form-control"
+					[attr.disabled]="submitted ? '': null"
+					[class.is-invalid]="form.get('channelLogo').touched && form.get('channelLogo').errors"
+					formControlName="channelLogo"/>
+
+				<form-message [control]="form.get('channelLogo')"></form-message>
+			</div>
+
+			<div class="form-group d-flex flex-column">
+				<label for="code3"><b>Code3</b></label>
+				<input
+					id="code3"
+					type="text"
+					name="code3"
+					placeholder="Code3"
+					class="form-control"
+					[attr.disabled]="submitted ? '': null"
+					[class.is-invalid]="form.get('code3').touched && form.get('code3').errors"
+					formControlName="code3"/>
+
+				<form-message
+					[control]="form.get('code3')"
+					[customErrorMessage]="'Max length 3 characters'">
+				</form-message>
+			</div>
+
+			<div class="form-group d-flex flex-column">
+				<label for="code2"><b>Code2</b></label>
+				<input
+					id="code2"
+					type="text"
+					name="code2"
+					placeholder="Code2"
+					class="form-control"
+					[attr.disabled]="submitted ? '': null"
+					[class.is-invalid]="form.get('code2').touched && form.get('code2').errors"
+					formControlName="code2"/>
+
+				<form-message
+					[control]="form.get('code2')"
+					[customErrorMessage]="'Max length 2 characters'">
+				</form-message>
+			</div>
+		</div>
+
+		<div class="text-center">
+			<div class="btn-group">
+				<button
+					class="btn btn-success"
+					type="submit"
+					[disabled]="submitted">
+
+					Apply
+				</button>
+				<button
+					type="button"
+					class="btn btn-danger"
+					(click)="decline()">
+
+					Cancel
+				</button>
+			</div>
+		</div>
+	</form>
+</div>

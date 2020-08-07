@@ -1,0 +1,269 @@
+<page-header
+	class="block mb-4"
+	title="Redshift DB viewer"
+	linkToWiki="https://wiki.go.akamai-access.com/display/BI/Redshift+DB+viewer">
+
+	<ng-template #pageHeaderSubTitle>
+		This page allows to preview and download data from certain tables in Redshift.
+	</ng-template>
+
+	<ng-template #pageHeaderContent>
+		<div class="d-flex align-items-bottom flex-column flex-xl-row justify-content-end pl-2 pr-2">
+				<div class="viewer-tabs pull-right pt-2 pb-2">
+					<ul
+						e2e="viewer-type-tabs"
+						role="tablist"
+						class="nav nav-tabs nav-justified flex-column flex-sm-row text-center">
+			
+						<a class="nav-item nav-link active p-2 pl-4 pr-4"
+							data-toggle="tab"
+							href="javascript:void(0)"
+							role="tab"
+							[class.active]="viewerTabs.tabs[0].active"
+							(click)="selectTab(0)">
+			
+							<b>Viewer</b>
+						</a>
+						<a class="nav-item nav-link d-flex p-2 pl-4 pr-4"
+							data-toggle="tab"
+							href="javascript:void(0)"
+							role="tab"
+							[class.active]="viewerTabs.tabs[1].active"
+							(click)="selectTab(1)">
+			
+							<b>Downloads</b>
+							<span *ngIf="downloadsFileParams.length">
+								({{downloadsFileParams.length}})
+							</span>
+						</a>
+					</ul>
+				</div>
+			</div>
+	</ng-template>
+</page-header>
+
+
+<tabset
+	class="viewer-tabs"
+	#viewerTabs
+	[class.nav-hidden]="true">
+
+	<tab>
+		<div class="row mb-4">
+			<div class="col-lg-3 align-items-start mb-2">
+				<div class="d-flex w-100 flex-xxl-row">
+					<label
+						 for="schemas"
+						 class="col-xs-4 d-flex align-items-center justify-content-end col-form-label p-2">
+
+						<b>Schema:</b>
+					</label>
+					<div class="col-xs-8 d-flex flex-xl-row flex-wrap align-items-start align-items-xl-center p-0">
+						<dropdown-item-picker
+							class="block w-100"
+							#schemas
+							[dataObservable]="schemaListSubj"
+							[fixedWidth]="false"
+							[search]="false"
+							(paramsChanged)="selectSchema($event[0])">
+						</dropdown-item-picker>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-5 align-items-start mb-2">
+				<div class="d-flex w-100 flex-xxl-row ">
+					<label
+						for="tables"
+						class="col-xs-4 col-lg-2 d-flex align-items-center justify-content-end col-form-label p-2">
+
+						<b>Table:</b>
+					</label>
+					<div class="col-xs-8 col-lg-10 d-flex flex-xl-row flex-wrap align-items-start align-items-xl-center p-0">
+						<dropdown-item-picker
+							class="block w-100"
+							#tables
+							[fixedWidth]="false"
+							[search]="false"
+							[disabled]="!params.schemaName"
+							[dataObservable]="tableListSubj"
+							(paramsChanged)="selectTable($event[0])">
+						</dropdown-item-picker>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-2 d-flex flex-xxl-row align-items-start mb-2">
+				<div class="d-flex w-100 flex-xxl-row ">
+					<label
+						class="col-xs-4 col-lg-5 d-flex align-items-center justify-content-end col-form-label p-2"
+						for="tables">
+
+						<b>Limit:</b>
+					</label>
+					<div class="col-xs-8 col-lg-7 d-flex flex-xl-row flex-wrap align-items-start align-items-xl-center p-0">
+						<input
+							class="block form-control radius-none"
+							#limit
+							min="1"
+							max="1000"
+							type="number"
+							[(ngModel)]="params.limit"
+							(change)="changeLimit(limit.value)">
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-2 offset-5 offset-lg-0 d-flex flex-xxl-row align-items-start mb-2 pl-1">
+				<div class="btn-group w-100">
+					<button
+						class="btn btn-success pl-3 pr-3"
+						type="button"
+						[disabled]="loading || !params.schemaName || !params.tableName"
+						(click)="initData()">
+
+						<span
+							*ngIf="loading"
+							class="ml-2 mr-2">
+
+							<i
+								e2e="refresh"
+								class="fa fa-refresh fa-spin">
+							</i>
+						</span>
+
+						<span *ngIf="!loading">
+							<small>Apply</small>
+						</span>
+					</button>
+
+					<button
+						class="btn btn-primary pl-2 pr-2"
+						type="button"
+						(click)="download()">
+
+						<small>Download</small>
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<div
+			*ngIf="dataErrorMsg"
+			class="m-2 text-danger text-right">
+
+			<small>Error: {{dataErrorMsg}}</small>
+		</div>
+
+		<div class="d-flex flex-xxl-row relative">
+			<div *ngIf="loading">
+				<div
+					e2e="loading-shade"  
+					class="bhn-loading-shade text-white">
+					<i
+						e2e="loader"
+						class="fa fa-pulse fa-spinner fa-1x"></i>
+				</div>
+			</div>
+			<div class="table-responsive pb-2">
+				<table class="table table-hover table-fixed mb-0">
+					<thead class="bg-dark text-white">
+						<tr>
+							<th
+								class="p-2 align-middle"
+								scope="col">
+
+								<span
+									class="text-center"
+									[class.block]="dataTable.rows.length">
+
+									#
+								</span>
+								<span
+									*ngIf="!dataTable.rows.length"
+									class="p-2">
+
+									no data
+								</span>
+							</th>
+							<th
+								*ngFor="let item of tableTitlesList | keys"
+								scope="col"
+								class="p-2 align-middle">
+
+								<div class="d-flex align-items-center justify-content-end">
+									{{item}}
+									<span class="d-inline-flex flex-column pl-2 pr-0">
+										<button
+											class="btn btn-link p-0 lh-0"
+											[hidden]="(params.orderBy == item && params.orderByType == 'DESC')"
+											(click)="orderBy(item, 'ASC')">
+
+											<i class="fa fa-caret-up text-white"></i>
+										</button>
+										<button
+											class="btn btn-link p-0 lh-0"
+											[hidden]="(params.orderBy == item && params.orderByType == 'ASC')"
+											(click)="orderBy(item, 'DESC')">
+
+											<i class="fa fa-caret-down text-white"></i>
+										</button>
+									</span>
+								</div>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let item of dataTable.rows; let i = index">
+							<th
+								class="p-2 text-center"
+								scope="row">
+
+								 <small>{{i + 1}}</small>
+							</th>
+							<td
+								*ngFor="let key of item | keys"
+								class="fixed-width p-2 text-right">
+
+								 <small>{{item[key]}}</small>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</tab>
+
+	<tab>
+		<div class="d-flex justify-content-end mb-2">
+			<div class="form-check d-inline-flex">
+				<input
+					class="form-check-input"
+					id="autoSaveCheckBox"
+					type="checkbox"
+					(change)="autoSave($event.target)">
+				<label
+					class="form-check-label"
+					for="autoSaveCheckBox">
+
+					<b>Auto save files</b>
+				</label>
+			</div>
+		</div>
+
+		<div class="d-flex flex-column-reverse">
+			<div
+				*ngIf="!downloadsFileParams.length"
+				class="text-center">
+
+				<b>No downloads at this time</b>
+			</div>
+			<download-file-item
+				*ngFor="let itemParams of downloadsFileParams; let i = index"
+				class="d-flex w-100"
+				[autoSave]="isAutoSave"
+				[params]="itemParams">
+			</download-file-item>
+		</div>
+	</tab>
+</tabset>

@@ -1,0 +1,9 @@
+<auto-conf-files-form
+	[loading]="list.loading"
+	[actionsLists]="actionsLists"
+	(executeSelected)="executeSelected()"
+	(downloadSelected)="downloadSelected()"
+	(changed)="perform()">
+</auto-conf-files-form>
+
+<auto-conf-files-list [actionsLists]="actionsLists"></auto-conf-files-list>

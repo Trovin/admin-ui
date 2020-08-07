@@ -1,0 +1,322 @@
+<div class="d-flex flex-column flex-xl-row align-items-start mb-2">
+	<p
+		e2e="pipeline"
+		class="p-2 pl-xl-0 h5 m-0">
+
+		Pipeline: <b>{{pipeline}}</b>
+	</p>
+	<p
+		e2e="source"
+		class="p-2 h5 m-0">
+
+		Source: <b>{{params.sourceApplication}}</b>
+	</p>
+	<p
+		e2e="period"
+		class="p-2 h5 m-0">
+		Period:
+		<b>
+			{{params.dateRange}}
+		</b>
+	</p>
+
+	<p
+		e2e=" component"
+		class="p-2 h5 m-0 mr-auto">
+
+		Component: <b>{{processTypeName}}</b>
+	</p>
+
+	<page-header
+		linkToWiki="https://wiki.go.akamai-access.com/display/BI/Error+Details+Page">
+	</page-header>
+</div>
+
+<div class="mb-3">
+	<date-range-ui
+		[dateRange]="params.dateRange"
+		[dateFrom]="params.dateFrom"
+		[dateTo]="params.dateTo">
+	</date-range-ui>
+</div>
+
+<div class="grouped-errors mb-3">
+	<div class="d-flex justify-content-between align-items-center">
+		<p class="h5 m-0">Summary:</p>
+
+		<a
+			e2e="audit-log"
+			class="p-2 align-self-end"
+			[routerLink]="navigateToAuditPage"
+			[queryParams]="navigateToAuditPageQueryParams"
+			queryParamsHandling="merge">
+
+			<i class="fa fa-clipboard"></i>
+
+			Audit log
+		</a>
+	</div>
+
+	<div class="table-responsive relative grouped-errors-body">
+		<div
+			*ngIf="groupedErrorsLoading"
+			[class.p-4]="groupedErrorsLoading">
+
+			<div
+				e2e="loading-shade"
+				class="bhn-loading-shade">
+				<i
+					e2e="loader"
+					class="fa fa-pulse fa-spinner fa-2x">
+				</i>
+			</div>
+		</div>
+
+		<table class="table table-striped border-none m-0">
+			<thead *ngIf="!groupedErrorsLoading">
+				<tr>
+					<th class="border-none">Errors Count</th>
+					<th class="border-none col-11">Short Error Message</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of groupedErrorsList">
+					<td class="errorsCount text-center border-none align-middle">
+						<span class="bold">{{item.errorsCount | number}}</span>
+					</td>
+					<td class="wrap-text border-none col-11 align-middle">
+						<button
+							type="button"
+							href="javascript:void(0)"
+							class="btn btn-link p-0 pre-wrap-text text-left"
+							[class.d-none]="item.checked"
+							[disabled]="errorsDetailsLoading"
+							(click)="addErrosGroupFilter(item)">{{item.shortMessage}}</button>
+
+						<span [class.d-none]="!item.checked">{{item.shortMessage}}</span>
+						<button
+							type="button"
+							class="btn btn-link"
+							[class.d-none]="!item.checked"
+							[disabled]="errorsDetailsLoading"
+							(click)="clearErrosGroupFilter()">
+
+							Clear Filter
+						</button>
+					</td>
+				</tr>
+			</tbody>
+
+			<tbody *ngIf="!groupedErrorsList.length && !groupedErrorsLoading">
+				<tr>
+					<td
+						e2e="no-data"
+						colspan="2">
+
+						No data.
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<div
+	*ngIf="queries.runId"
+	class="mb-3 wrap-text">
+
+	<span class="h6 bold">Filtered by input file: </span>
+	{{params.objectKey}}
+
+	<a
+		[href]="composeS3Url(params.bucketName, params.objectKey, params.processedObjectKey)"
+		target="_blank"
+		class="inline-block p-2">
+
+		<i
+			class="fa fa-share-square-o text-default"
+			aria-hidden="true">
+		</i>
+	</a>
+
+	|
+
+	<button
+		type="button"
+		class="btn btn-link"
+		[disabled]="loading"
+		(click)="resetInputFileFilter()">
+
+		Clear Filter
+	</button>
+</div>
+
+<div class="d-flex align-items-center">
+	<span
+		e2e="title"
+		class="badge badge-secondary">
+
+		Last 10 Errors
+	</span>
+
+	<button
+		type="button"
+		class="btn-link border-0 outline-none pre-wrap-text cursor-pointer pl-3 pr-3"
+		(click)="initErrorsDetails()">
+
+		<i
+			e2e="refresh"
+			class="fa fa-refresh"
+			[class.fa-spin]="errorsDetailsLoading">
+		</i>
+		Refresh
+	</button>
+</div>
+
+<div class="table-responsive relative mt-3">
+	<div *ngIf="errorsDetailsLoading">
+		<div class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<table
+		e2e="errors-table"
+		class="table table-sm table-borderless margin-none">
+
+		<tbody
+			*ngFor="let item of items; let i = index"
+			class="d-flex flex-column p-2 w-100 border">
+
+			<tr>
+				<td
+					e2e="error-number"
+					class="p-0">
+
+					<b>Error # {{i + 1}}</b>
+				</td>
+				<td class="p-0"></td>
+			</tr>
+			<tr class="d-flex">
+				<td class="col-3 col-sm-2 col-xl-1 p-0">
+					Raw file date:
+				</td>
+				<td
+					e2e="raw-file-date"
+					class="p-0">
+					{{item.date | dateTimeFormat}}
+				</td>
+			</tr>
+
+			<tr
+				*ngIf="pipelineProcessType.getByAlias(params.process) != pipelineProcessType.BATCH"
+				class="d-flex">
+
+				<td class="col-3 col-sm-2 col-xl-1 p-0">
+					Raw file:
+				</td>
+				<td
+					e2e="raw-file"
+					class="wrap-text p-0">
+
+					{{item.rawFileName}}
+
+					<a
+						[href]="composeS3Url(item.bucketName, item.objectKey, item.processedObjectKey)"
+						target="_blank"
+						class="p-1">
+
+						<i
+							class="fa fa-share-square-o text-default"
+							aria-hidden="true">
+						</i>
+					</a>
+				</td>
+			</tr>
+			<tr
+				*ngIf="item.processOperation === processOperationType.INPUT && item.objectKey"
+				class="d-flex">
+
+				<td class="col-3 col-sm-2 col-xl-1 p-0">
+					Input file:
+				</td>
+				<td
+					e2e="input-file"
+					class="wrap-text p-0">
+
+					{{item.objectKey}}
+
+					<a
+						[href]="composeS3Url(item.bucketName, item.objectKey, item.processedObjectKey)"
+						target="_blank"
+						class="p-1">
+
+						<i
+							class="fa fa-share-square-o text-default"
+							aria-hidden="true">
+						</i>
+					</a>
+				</td>
+			</tr>
+			<tr
+				*ngIf="item.eventId"
+				class="d-flex">
+
+				<td class="col-3 col-sm-2 col-xl-1 p-0">
+					Event Type:
+				</td>
+				<td
+					e2e="event-id"
+					class="p-0">
+					{{item.eventId}}
+				</td>
+			</tr>
+			<tr class="d-flex">
+				<td class="col-3 col-sm-2 col-xl-1 p-0">
+					Start time:
+				</td>
+				<td
+					e2e="start-time"
+					class="wrap-text p-0">
+
+					{{item.startTime | dateTimeFormat}}
+				</td>
+			</tr>
+			<tr
+				*ngIf="item.processOperation"
+				class="d-flex">
+
+				<td class="col-3 col-sm-2 col-xl-1 p-0">
+					Operation:
+				</td>
+				<td
+					e2e="start-time"
+					class="text-primary p-0">
+
+					{{item.processOperation}}
+				</td>
+			</tr>
+
+			<tr class="d-flex">
+				<td class="col-3 col-sm-2 col-xl-1 p-0">
+					Details:
+				</td>
+				<td
+					e2e="details"
+					class="p-0 pre-wrap-text">{{item.details}}</td>
+			</tr>
+		</tbody>
+
+		<tbody *ngIf="!items.length && !errorsDetailsLoading">
+			<tr>
+				<td
+					e2e="no-data"
+					colspan="4">
+					No data.
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

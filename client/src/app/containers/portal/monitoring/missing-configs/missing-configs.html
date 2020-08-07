@@ -1,0 +1,146 @@
+<page-header
+	class="block mb-4"
+	title="Missing Configurations"
+	linkToWiki="https://wiki.go.akamai-access.com/display/BI/Missing+Configurations"
+	[isShowRefreshBtn]="true"
+	[setLoadingStatus]="loading"
+	(refreshed)="refresh()">
+
+	<ng-template #pageHeaderSubTitle>
+		This page shows a list of source apps and event types of the data that is sent to Galaxy but not configured / not brought on board.
+	</ng-template>
+</page-header>
+
+<p class="mb-2 small">
+	Total items: {{items.length}}
+</p>
+
+<div class="table-responsive relative mb-4">
+	<div *ngIf="loading">
+		<div
+			e2e="loading-shade"
+			class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<table
+		e2e="missing-configs-table"
+		class="table table-sm table-hover table-bordered m-0">
+
+		<thead>
+			<tr>
+				<th class="align-middle">Source App</th>
+				<th class="align-middle">Event Type</th>
+				<th class="align-middle">
+					Bucket
+					<span
+						class="btn-link border-0 ml-1 p-0"
+						placement="bottom"
+						tooltip="Bucket where the file was found">
+						<i class="fa fa-info-circle"></i>
+					</span>
+				</th>
+				<th class="text-center align-middle">Missing Configs</th>
+				<th 
+					*ngIf="isBatchMissingConfigsExist"
+					class="text-center align-middle">
+					Input files
+				</th>
+				<th class="text-center align-middle">Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr
+				e2e="missing-configs-row"
+				*ngFor="let item of items">
+
+				<td
+					e2e="source-application"
+					class="align-middle">
+
+					{{item.sourceApplication}}
+				</td>
+				<td
+					e2e="event-id"
+					class="align-middle">
+
+					{{item.eventId}}
+				</td>
+				<td
+					e2e="bucket-name"
+					class="align-middle">
+
+					{{item.bucketName}}
+
+					<a
+						e2e="find-on-s3"
+						[href]="item.s3Url"
+						target="_blank">
+		
+						<i class="fa fa-share-square-o mr-1"></i>
+					</a>
+				</td>
+				<td
+					e2e="missing-config"
+					class="text-center align-middle">
+
+					<a
+						e2e="pipeline-config-link"
+						[routerLink]="['/portal', 'configs', 'pipelines', item.missingConfig]">
+
+						{{item.missingConfig}}
+					</a>
+				</td>
+
+				<td
+					*ngIf="isBatchMissingConfigsExist"
+					class="text-center">
+
+					<a
+						*ngIf="item.missingConfig === batchBucket"
+						[routerLink]="['/portal', 'input-files', item.missingConfig]"
+						[queryParams]="{
+							'sourceApplication': item.sourceApplication,
+							'eventId': item.eventId
+						}"
+						queryParamsHandling="merge">
+
+						Browse input files
+					</a>
+				</td>
+
+				<td class="text-center">
+					<button
+						type="button"
+						class="btn btn-link text-info small padding-none"
+						title="Delete draft config"
+						[disabled]="item.deleteInProcess"
+						(click)="deleteDraftConfig(item)">
+		
+						<i
+							*ngIf="!item.deleteInProcess"
+							class="fa fa-trash fa-fw mr-1"></i>
+						<i
+							e2e="loader"
+							*ngIf="item.deleteInProcess"
+							class="fa fa-pulse fa-spinner mr-1">
+						</i>Delete draft config
+					</button>
+				</td>
+			</tr>
+
+			<tr *ngIf="!items.length">
+				<td
+					e2e="no-data"
+					class="text-center text-muted p-2"
+					colspan="6">
+
+					<b>No data</b>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

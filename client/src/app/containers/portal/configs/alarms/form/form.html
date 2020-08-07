@@ -1,0 +1,129 @@
+<form
+	class="audit-form pb-3"
+	#alarmConfigForm
+	ngNativeValidate
+	class="d-flex flex-column flex-xxxl-row mb-2"
+	(submit)="submit()">
+
+	<div class="d-flex flex-column flex-xl-row">
+		<label class="text-nowrap text-xxl-right bold p-2 pt-xl-3">
+			Filter by:
+		</label>
+
+		<div class="row align-items-center no-gutters">
+			<div class="p-2">
+				<div class="form-group m-0">
+					<dropdown-item-picker
+						e2e="bucket-list-dropdown"
+						#bucketList
+						class="block w-100"
+						placeholder="All Buckets"
+						[fixedWidth]="true"
+						[dataObservable]="bucketListSubj"
+						(paramsChanged)="changeBucket($event[0])">
+					</dropdown-item-picker>
+				</div>
+			</div>
+
+			<div class="p-2">
+				<div class="form-group m-0">
+					<dropdown-item-picker
+						e2e="statuses-list-dropdown"
+						#statusesList
+						class="block w-100"
+						placeholder="All Statuses"
+						[fixedWidth]="true"
+						[data]="alarmStatuses"
+						(paramsChanged)="changeStatusesParam($event[0].value)">
+					</dropdown-item-picker>
+				</div>
+			</div>
+
+			<div class="nowrap-text small p-2">
+				<label>
+					<input
+						e2e="enabled-only"
+						class="mr-1"
+						type="checkbox"
+						name="enabledOnly"
+						[checked]="params.enabledOnly"
+						[(ngModel)]="params.enabledOnly">
+
+					<b>Enabled only</b>
+				</label>
+			</div>
+
+			<div class="p-2 full-width">
+				<input
+					class="form-control radius-none"
+					type="text"
+					placeholder="All Source Prefixes"
+					[ngModelOptions]="{standalone: true}"
+					[(ngModel)]="params.sourcePrefix"
+					(change)="changeSourcePrefix($event.target.value)">
+			</div>
+
+			<div
+				class="dropdown-select-backdrop"
+				[class.open]="open"
+				(click)="close()">
+			</div>
+		</div>
+
+		<div class="row align-self-xl-end no-gutters p-2">
+			<div class="btn-group">
+				<button
+					e2e="apply"
+					class="btn btn-primary rounded"
+					type="submit"
+					[disabled]="loading">
+
+					Search
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="col d-flex align-self-end justify-content-end p-2">
+		<button
+			*permissions="{ container: containers.S3_ALARMS_CONFIGS, permissions: [permission.CREATE] }"
+			class="btn btn-success mr-2 small text-nowrap"
+			type="button"
+			title="Add new config"
+			[disabled]="loading"
+			(click)="addConfig()">
+
+			<i
+				class="fa fa-plus fa-fw mr-1">
+			</i>
+			<small>Add new</small>
+		</button>
+
+		<button
+			class="btn btn-dark mr-2 small text-nowrap"
+			type="button"
+			title="Refresh"
+			[disabled]="loading"
+			(click)="refresh()">
+
+			<i
+				e2e="refresh"
+				class="fa fa-refresh fa-fw mr-1"
+				[class.fa-spin]="loading">
+			</i>
+			<small>Refresh</small>
+		</button>
+
+		<button
+			*permissions="{ container: containers.S3_ALARMS_CONFIGS, permissions: [permission.DELETE] }"
+			class="btn btn-danger small text-nowrap"
+			type="button"
+			title="Delete Selected"
+			[disabled]="!selectedConfigs.length"
+			(click)="deleteSelectedConfigs()">
+
+			<i class="fa fa-trash fa-fw mr-1"></i>
+			<small>Delete selected</small>
+		</button>
+	</div>
+</form>

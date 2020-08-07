@@ -1,0 +1,448 @@
+<page-header
+	class="block mb-4"
+	title="Input files"
+	linkToWiki="https://wiki.go.akamai-access.com/display/BI/Page%3A+Input+files">
+
+	<ng-template #pageHeaderSubTitle>
+		This page allows to check all the input files of the Galaxy platform, check the status of transfer/processing and check their internal recon status.
+	</ng-template>
+</page-header>
+
+<batch-data-form
+	[loading]="loading"
+	(changed)="performSearch($event)">
+</batch-data-form>
+
+<div
+	class="dropdown-select-backdrop"
+	[class.open]="open"
+	(click)="open = false">
+</div>
+
+<ul
+	role="tablist"
+	class="nav nav-tabs mb-1 text-center">
+
+	<li class="nav-item">
+		<a
+			e2e="historical-batch-tab"
+			role="tab"
+			class="nav-link cursor-pointer"
+			[class.disabled]="loading"
+			[class.active]="isLinkActive(bucketType.REAL_TIME)"
+			(click)="changeTab(bucketType.REAL_TIME)">
+
+			Real Time
+		</a>
+	</li>
+
+	<li class="nav-item">
+		<a
+			e2e="batch-tab"
+			role="tab"
+			class="nav-link cursor-pointer"
+			[class.disabled]="loading"
+			[class.active]="isLinkActive(bucketType.BATCH)"
+			(click)="changeTab(bucketType.BATCH)">
+
+			Batch
+		</a>
+	</li>
+
+	<li class="nav-item">
+		<a
+			e2e="historical-batch-tab"
+			role="tab"
+			class="nav-link cursor-pointer"
+			[class.disabled]="loading"
+			[class.active]="isLinkActive(bucketType.HISTORICAL_BATCH)"
+			(click)="changeTab(bucketType.HISTORICAL_BATCH)">
+
+			Historical Batch
+		</a>
+	</li>
+
+	<li
+		*permissions="{ container: containers.INPUT_FILES, permissions: [permission.UPDATE] }"
+		class="flex-grow-1 align-self-center">
+
+		<div
+			class="d-flex replay-actions align-items-center justify-content-end relative"
+			[class.open]="open">
+
+			<button
+				e2e="group-actions"
+				type="button"
+				class="btn relative"
+				[disabled]="!items.length || loading"
+				(click)="open = !open">
+
+				Bulk Actions
+
+				<i
+					*ngIf="!loading"
+					class="fa"
+					[ngClass]="{
+						'fa-angle-down': !open,
+						'fa-angle-up': open
+					}">
+				</i>
+
+				<i
+					e2e="loader"
+					*ngIf="loading"
+					class="fa fa-pulse fa-spinner">
+				</i>
+			</button>
+
+			<ul
+				class="dropdown-menu dropdown-menu-right p-2"
+				[class.block]="open">
+
+				<li class="pr-4 pl-4 pb-1 text-muted small bold border-bottom">
+					Selected: {{selectedItems.length}} file<span *ngIf="selectedItems.length !== 1">s</span>
+				</li>
+
+				<li role="menuitem">
+					<button
+						class="dropdown-item"
+						type="button"
+						[disabled]="!selectedItems.length || reconciliationAllInProcess || reconciliationInProcess"
+						(click)="reconcileSelectedFiles()">
+
+						<i
+							class="fa mr-1"
+							[ngClass]="{
+								'fa-play-circle': !reconciliationInProcess,
+								'fa-repeat': reconciliationInProcess,
+								'fa-spin': reconciliationInProcess,
+								'text-success': selectedItems.length && !reconciliationAllInProcess,
+								'text-secondary': !selectedItems.length || reconciliationAllInProcess
+							}">
+						</i>
+
+						Reconcile selected files from current page
+					</button>
+				</li>
+
+				<li role="menuitem">
+					<button
+						class="dropdown-item"
+						type="button"
+						[disabled]="!items.length || reconciliationAllInProcess || reconciliationInProcess"
+						(click)="reconcileAll()">
+
+						<i
+							class="fa mr-1"
+							[ngClass]="{
+								'fa-play-circle': !reconciliationAllInProcess,
+								'fa-repeat': reconciliationAllInProcess,
+								'fa-spin': reconciliationAllInProcess,
+								'text-success': items.length && !reconciliationInProcess,
+								'text-secondary': !items.length || reconciliationInProcess
+							}">
+						</i>
+
+						Reconcile all files from filters result
+					</button>
+				</li>
+			</ul>
+		</div>
+	</li>
+</ul>
+
+<div class="badge badge-primary bg-light text-wrap mt-3 mb-3 ">
+	<span class="text-dark h6">Files from S3 bucket</span>
+	<a
+		[href]="s3UrIBuilder.buildS3Url(bucketName, null)"
+		target="_blank"
+		class="h6 text-info p-2">
+
+		{{bucketName}}
+	</a>
+</div>
+
+<div *ngIf="!isContentShown">
+	<div
+		e2e="select-source-alert"
+		class="alert alert-info" role="alert">
+		<i class="fa fa-info-circle mr-2"></i>
+		<b>Select the source and the event type to display the file list</b>
+	</div>
+</div>
+
+<div
+	*ngIf="isContentShown"
+	class="table-responsive relative mb-2 pb-2">
+
+	<div
+		*ngIf="loading"
+		class="block p-4">
+
+		<div
+			e2e="loading-shade"
+			class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<table
+		e2e="batch-data-table"
+		class="table table-lg table-hover table-striped table-bordered m-0">
+
+		<thead>
+			<tr *ngIf="(headers | json) != ({} | json)">
+				<th class="align-middle">
+					<div class="d-flex align-items-center">
+
+						<div>
+							{{headers.objectKey}}
+						</div>
+						<column-sort
+							[sortBy]="sortColumns.getAlias(sortColumns.OBJECT_KEY)"
+							[sortByObservable]="sortSubj"
+							(changed)="changedSortBy($event)">
+						</column-sort>
+					</div>
+				</th>
+				<th class="text-center align-middle">
+					{{headers.sourceApplication}}
+				</th>
+				<th class="text-center align-middle">{{headers.eventId}}</th>
+				<th class="text-center align-middle">{{headers.eventCount}}</th>
+				<th class="text-center align-middle">
+					<div class="d-flex align-items-center justify-content-center">
+						<div>
+							{{headers.lastModified}}
+							<p class="help-block text-muted small">{{timezone}})</p>
+						</div>
+						<column-sort
+							[sortBy]="sortColumns.getAlias(sortColumns.LAST_MODIFIED)"
+							[sortByObservable]="sortSubj"
+							(changed)="changedSortBy($event)">
+						</column-sort>
+					</div>
+				</th>
+				<th class="text-center align-middle">{{headers.reconciliations}}</th>
+				<th class="text-center align-middle">{{headers.fileProcessStatus}}</th>
+				<th class="text-center align-middle">{{headers.actions}}</th>
+				<th class="align-middle text-center">
+					<label>
+						<input
+							type="checkbox"
+							[checked]="!loading && !!items.length && items.length === selectedItems.length"
+							[disabled]="reconciliationAllInProcess || reconciliationInProcess"
+							(change)="selectedAllFiles($event.target)">
+					</label>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr
+				e2e="batch-data-row"
+				*ngFor="let item of items">
+
+				<td
+					e2e="input-file-name"
+					class="pre-wrap-text fixed-width align-middle">
+					<span>{{item.objectKey}}</span>
+
+					<a
+						e2e="find-on-s3"
+						class="ml-1 text-nowrap"
+						[href]="s3UrIBuilder.buildS3Url(bucketName, item.objectKey)"
+						target="_blank">
+
+						<i class="fa fa-external-link mr-1"></i>
+					</a>
+				</td>
+				<td
+					e2e="source-app"
+					class="text-center align-middle">
+					{{item.sourceApplication}}
+				</td>
+				<td
+					e2e="event-id"
+					class="text-center align-middle">
+					{{item.eventId}}
+				</td>
+				<td
+					e2e="event-count"
+					class="text-center align-middle">
+					{{item.eventCount}}
+				</td>
+				<td
+					e2e="modified-date-time"
+					class="text-center align-middle">
+					{{item.lastModified | dateTimeFormat: 'yyyy-MM-dd HH:mm:ss'}}
+				</td>
+
+				<td
+					e2e="status"
+					class="text-center align-middle">
+
+					<table class="table table-sm m-0 background-none border-none">
+						<tbody>
+							<tr
+								*ngFor="let reconcile of item.reconciliations"
+								class="background-none border-none">
+
+								<td
+									*ngIf="item.eventCount > 0"
+									class="text-left w-50 border-none">
+
+									{{reconcile.redshiftTargetSchema + '.' + reconcile.redshiftTargetTable}}:
+								</td>
+								<td
+									class="w-50 border-none"
+									[class.text-left]="item.eventCount > 0">
+
+									<ng-template #reconTooltipTemplate>
+										<div [innerHTML]="!reconcile.reconDate ? '' : 'Last reconciliation date: ' + (reconcile.reconDate | dateTimeFormat: 'yyyy-MM-dd HH:mm:ss')
+												+ (!reconcile.errorDetail ? '' : '<br/>Error: ' + reconcile.errorDetail)">
+										</div>
+									</ng-template>
+									<p
+										[class.cursor-pointer]="reconcile.reconDate"
+										[tooltip]="reconTooltipTemplate">
+
+										<span *ngIf="reconcile.reconciliationMissingCount === 0 && !reconcile.reconciliationError || item.eventCount === 0">
+											<i
+												e2e="success-mark"
+												class="fa fa-check-circle text-success">
+											</i>
+											OK
+
+											<span
+												class="text-muted block"
+												[class.block]="item.reconciliations.length === 1"
+												[class.d-none]="item.eventCount !== 0">
+
+												(Empty file)
+											</span>
+										</span>
+										<span
+											*ngIf="reconcile.reconciliationMissingCount > 0 && !reconcile.reconciliationError"
+											class="text-danger">
+
+											<a
+												class="text-danger inline-block"
+												[routerLink]="['/portal', 'input-files', bucket, 'missing-events']"
+												[queryParams]="{
+													'objectKey': item.objectKey,
+													'bucketName': bucket,
+													'redshiftTargetTable': reconcile.redshiftTargetTable,
+													'redshiftTargetSchema': reconcile.redshiftTargetSchema
+												}">
+
+												<i
+													e2e="error-mark"
+													class="fa fa-times-circle text-danger">
+												</i>
+												Mismatch {{reconcile.reconciliationMissingCount | number}}
+											</a>
+										</span>
+										<span
+											*ngIf="reconcile.reconciliationError"
+											class="text-danger">
+
+											<i
+												e2e="error-mark"
+												class="fa fa-times-circle text-danger">
+											</i>
+											Reconciliation error
+										</span>
+									</p>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+
+				<td class="text-center fixed-width text-nowrap align-middle">
+					{{item.fileProcessStatus | fileProcessingStatus}}
+				</td>
+
+				<td class="text-center fixed-width text-nowrap align-middle">
+					<p *permissions="{ container: containers.INPUT_FILES, permissions: [permission.UPDATE] }">
+						<span
+							*ngIf="item.isReconciliationPermitted"
+							class="mr-1 ml-1">
+							Reconcile:
+						</span>
+
+						<button
+							*ngIf="item.isReconciliationPermitted"
+							type="button"
+							class="btn btn-link p-0 border-0 outline-none cursor-pointer text-center"
+							[disabled]="item.reconciliationFileInProcess || reconciliationAllInProcess"
+							(click)="reconcileFile(item)">
+
+							file
+
+							<i
+								e2e="replay"
+								class="fa fa-repeat"
+								[class.fa-spin]="item.reconciliationFileInProcess || reconciliationAllInProcess"></i>
+						</button>
+					</p>
+
+					<p>
+						<a
+							e2e="audit-log"
+							class="btn btn-link p-0 m-0"
+							[routerLink]="item.auditLink"
+							[queryParams]="item.auditQueryParams">
+
+							Audit log
+
+							<i class="fa fa-level-up"></i>
+						</a>
+					</p>
+
+
+				</td>
+
+				<td class="align-middle text-center p-2 align-middle">
+					<label>
+						<input
+							*ngIf="item.isReconciliationPermitted"
+							type="checkbox"
+							[checked]="item.selected"
+							[disabled]="item.reconciliationFileInProcess || reconciliationAllInProcess || reconciliationInProcess"
+							(change)="selectedFile(item, $event.target)">
+					</label>
+				</td>
+			</tr>
+		</tbody>
+
+		<tbody *ngIf="!items.length && !loading">
+			<tr>
+				<td
+					e2e="no-data"
+					colspan="9">
+
+					No data.
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div
+	*ngIf="items && items.length && pagination.totalItems > pagination.itemsPerPage"
+	class="row">
+
+	<div class="col-12">
+		<paginator
+			[loading]="loading"
+			[itemsPerPage]="pagination.itemsPerPage"
+			[totalItems]="pagination.totalItems"
+			[page]="pagination.page"
+			[boundaryLinks]="true"
+			(changed)="pageChanged($event.page)">
+		</paginator>
+	</div>
+</div>

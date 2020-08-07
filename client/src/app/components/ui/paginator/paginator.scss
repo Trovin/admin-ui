@@ -1,0 +1,13 @@
+.pagination-wrapper {
+	overflow-x: auto;
+}
+
+.items-per-page-wrapper {
+	font: normal normal normal 14px/1 Roboto;
+}
+
+@media (min-width: 1200px) {
+	.pagination-wrapper {
+		display: inline-block;
+	}
+}

@@ -1,0 +1,174 @@
+<page-header
+	class="block mb-4"
+	title="Redshift DDL"
+	linkToWiki="https://wiki.go.akamai-access.com/display/BI/Redshift+DDL"
+	[isShowRefreshBtn]="true"
+	[setLoadingStatus]="loading"
+	(refreshed)="fetch()">
+
+	<ng-template #pageHeaderSubTitle>
+		This page shows schema changes in Redshift tables, except temporary tables with prefixes: tmp_ stg_ and rec_.
+	</ng-template>
+</page-header>
+
+<redshift-ddl-form
+	[loading]="loading"
+	(changed)="performSearch($event)">
+</redshift-ddl-form>
+
+<div class="table-responsive relative mb-3">
+	<div *ngIf="loading">
+		<div
+			e2e="loading-shade"  
+			class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<table
+		e2e="batch-data-table" 
+		class="table table-lg table-hover table-striped table-bordered m-0">
+
+		<thead>
+			<tr>
+				<th class="text-center align-middle">User Name</th>
+				<th class="text-center align-middle">Pid</th>
+				<th class="text-center align-middle">Xid</th>
+				<th class="text-center align-middle">Label</th>
+				<th class="text-center align-middle">
+					Start Time
+					<p class="help-block text-muted">({{timezone}})</p>
+				</th>
+
+				<th class="text-center align-middle">
+					End Time
+					<p class="help-block text-muted">({{timezone}})</p>
+				</th>
+				<th class="text-center align-middle fixed-width">DDL Text</th>
+				<th class="text-center align-middle">Validate Errors</th>
+				<th class="text-center align-middle">Validate Description</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr 
+				e2e="redshift-ddl-row"
+				*ngFor="let item of items">
+
+				<td
+					e2e="user-id"
+					class="text-center align-middle">
+
+					{{item.userName}}
+				</td>
+				<td
+					e2e="pid"
+					class="text-center align-middle">
+
+					{{item.pid}}
+				</td>
+				<td 
+					e2e="xid"
+					class="text-center align-middle">
+
+					{{item.xid}}
+				</td>
+				<td
+					e2e="label"
+					class="text-center align-middle">
+					{{item.label}}
+				</td>
+				<td
+					e2e="start-time"
+					class="text-center align-middle">
+
+					{{item.startTime | dateTimeFormat: 'yyyy-MM-dd HH:mm:ss'}}
+				</td>
+
+				<td 
+					e2e="end-time"
+					class="text-center align-middle">
+
+					{{item.endTime | dateTimeFormat: 'yyyy-MM-dd HH:mm:ss'}}
+				</td>
+				<td
+					e2e="ddlText"
+					class="align-middle pre-wrap-text fixed-width">
+
+					<a
+						href="javascript:void(0)"
+						class="ellipsis-text block"
+						(click)="openModal(item.ddlText)">
+
+						{{item.ddlText}}
+					</a>
+				</td>
+				<td
+					e2e="validate-errors"
+					class="text-center align-middle">
+
+					{{item.validateErrors}}
+				</td>
+				<td
+					e2e="validate-description"
+					class="text-center align-middle">
+
+					{{item.validateDescription}}
+				</td>
+			</tr>
+
+			<tr *ngIf="!items.length && !loading">
+				<td
+					e2e="no-data"
+					colspan="9">
+
+					No data.
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div
+	*ngIf="items && items.length && pagination.totalItems > pagination.itemsPerPage"
+	class="row">
+
+	<div class="col-12">
+		<paginator
+			[loading]="loading"
+			[itemsPerPage]="pagination.itemsPerPage"
+			[totalItems]="pagination.totalItems"
+			[page]="pagination.page"
+			(changed)="pageChanged($event.page)">
+		</paginator>
+	</div>
+</div>
+
+<div
+	class="modal fade"
+	bsModal
+	#modalRef="bs-modal"
+	tabindex="-1"
+	role="dialog"
+	aria-labelledby="ddlTextModal">
+
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title pull-left">DDL Text</h4>
+				<button
+					type="button"
+					class="close pull-right"
+					aria-label="Close"
+					(click)="modalRef.hide()">
+
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				{{ddlText}}
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,133 @@
+<table
+	e2e="subscriptions-table"
+	class="table table-hover table-sm table-bordered border m-0">
+
+	<thead>
+	<tr>
+		<th class="align-middle">Source application</th>
+		<th class="text-center align-middle">Event id</th>
+		<th class="text-center align-middle">Level</th>
+		<th class="text-center align-middle">Component</th>
+		<th
+			*ngIf="!hideSecondaryColumns"
+			class="text-center align-middle">
+			Last sent email date
+		</th>
+		<th class="text-center align-middle">Subscription Creator</th>
+		<th
+			*ngIf="!hideSecondaryColumns"
+			class="text-center align-middle">
+			Count of emails sent by this subscription
+		</th>
+		<th
+			*permissions="{ container: containers.SUBSCRIPTIONS, permissions: [permission.UPDATE] }"
+			class="text-center align-middle">
+			Activate/Deactivate
+		</th>
+		<th
+			*permissions="{ container: containers.SUBSCRIPTIONS, permissions: [permission.DELETE] }"
+			class="text-center align-middle">
+		</th>
+	</tr>
+	</thead>
+	<tbody>
+	<tr *ngFor="let item of items">
+		<td
+			e2e="source-app"
+			class="align-middle">
+
+			{{item.sourceApplication}}
+		</td>
+
+		<td
+			e2e="event-id"
+			class="align-middle text-center">
+
+			{{item.eventId}}
+		</td>
+
+		<td
+			e2e="level"
+			class="text-center align-middle">
+
+			{{item.level}}
+		</td>
+
+		<td
+			e2e="component"
+			class="align-middle text-center">
+
+			{{item.component}}
+		</td>
+
+		<td
+			*ngIf="!hideSecondaryColumns"
+			e2e="last-notification-sent-date"
+			class="text-center align-middle">
+
+			{{item.lastNotificationSentDate | dateTimeFormat: 'yyyy-MM-dd HH:mm:ss'}}
+		</td>
+
+		<td
+			e2e="creator-email"
+			class="text-center align-middle">
+
+			{{item.creatorEmail}}
+		</td>
+
+
+		<td
+			*ngIf="!hideSecondaryColumns"
+			e2e="total-notifications-sent"
+			class="text-center align-middle">
+
+			{{item.totalNotificationsSent}}
+		</td>
+
+		<td
+			e2e="toggle-subscriptions"
+			*permissions="{ container: containers.SUBSCRIPTIONS, permission: [permission.UPDATE] }"
+			class="text-center align-middle">
+
+			<switch-control
+				[active]="item.active"
+				[loading]="item.loading"
+				[disabled]="item.loading || loading"
+				(changed)="switchSubscriptionState.emit(item)">
+			</switch-control>
+		</td>
+
+		<td
+			*permissions="{ container: containers.SUBSCRIPTIONS, permission: [permission.DELETE] }"
+			class="text-center align-middle">
+
+			<button
+				class="btn btn-outline-danger border-none p-1 pl-2 pr-2"
+				type="button"
+				title="Delete"
+				[disabled]="item.deleteInProcess"
+				(click)="delete.emit(item)">
+
+				<i
+					e2e="delete"
+					class="fa"
+					[ngClass]="{
+								'fa-pulse fa-spinner': item.deleteInProcess,
+								'fa-trash': !item.deleteInProcess
+							}">
+				</i>
+			</button>
+		</td>
+	</tr>
+
+	<tr *ngIf="!!items && !items.length">
+		<td
+			e2e="no-data"
+			class="text-center text-muted p-2"
+			colspan="8">
+
+			<b>No data</b>
+		</td>
+	</tr>
+	</tbody>
+</table>

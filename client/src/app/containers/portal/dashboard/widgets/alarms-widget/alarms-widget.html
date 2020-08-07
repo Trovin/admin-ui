@@ -1,0 +1,142 @@
+<div *ngIf="alarmLambdaItems.length || cloudWatchAlarmItems.length || alarmPipelineErrorsItems.length"
+	class="alarms relative p-2">
+
+	<div *ngIf="loading">
+		<div
+			e2e="loading-shade"
+			class="bhn-loading-shade">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<div class="list-group">
+		<div
+			*ngFor="let item of alarmLambdaItems; let i = index"
+			class="alarm-item alert alert-danger text-dark radius-none small overflow-hidden mb-2">
+
+			<div class="d-flex w-100 justify-content-between text-muted mb-1">
+				<small>S3 Alarm</small>
+				<small>Last check: {{item.lastCheckDate}}(UTC)</small>
+			</div>
+
+			<div class="w-100 mb-1">
+				<span>Bucket: </span>
+				<b>{{item.bucket}}</b>
+			</div>
+
+			<div class="w-100 mb-1">
+				<span class="mr-0 text-nowrap">Source Prefix: </span>
+				<b>{{item.sourcePrefix}}</b>
+			</div>
+
+			<div>
+				The file didn't come after <b>{{item.durationHours}}</b> hours waiting.
+				<a
+					class="ml-1"
+					[routerLink]="['/portal', 'configs', 'alarms']"
+					[queryParams]="item.queryParams">
+
+					Details...
+				</a>
+			</div>
+		</div>
+
+		<div
+			*ngFor="let item of cloudWatchAlarmItems; let i = index"
+			class="alarm-item alert alert-danger text-dark radius-none small mb-0"
+			[class.mb-2]="i !== cloudWatchAlarmItems.length">
+
+			<div class="d-flex w-100 justify-content-between text-muted mb-1">
+				<small>CloudWatch Alarm</small>
+				<small>Last check: {{item.stateUpdateTimestamp | dateTimeFormat}}(UTC)</small>
+			</div>
+
+			<div class="d-flex w-100 mb-1">
+				<div class="col-6 p-0 pr-1">
+					Namespace: <b>{{item.namespace}}</b>
+				</div>
+
+				<div class="col-6 p-0 pr-1">
+					Metric Name: <b>{{item.metricName}}</b>
+				</div>
+			</div>
+
+			<div class="w-100 mb-1">
+				<span class="mr-0 text-nowrap">Dimensions: </span>
+				<span *ngFor="let dimension of item.dimensions; let i = index">
+					<b>{{dimension}}</b><span *ngIf="item.dimensions.length > 1 && i !== item.dimensions.length-1">,&nbsp;</span>
+				</span>
+			</div>
+
+			<div>
+				Name: <b>{{item.name}}</b>
+
+				<a
+					class="ml-1"
+					[href]="item.url"
+					target="_blank">
+
+					Details...
+				</a>
+			</div>
+		</div>
+
+		<div
+			*ngFor="let item of alarmPipelineErrorsItems; let i = index"
+			class="alarm-item alert alert-danger text-dark radius-none small mb-2">
+
+			<div class="d-flex w-100 justify-content-between text-muted mb-1">
+				<small>Pipeline Error</small>
+				<small>Last check: {{item.lastCheckDate | dateTimeFormat}}(UTC)</small>
+			</div>
+
+			<div class="w-100 mb-1">
+				<span>Event type: </span>
+				<span><b>{{item.sourceApplication}}/{{item.eventId}}</b></span>
+			</div>
+
+			<div class="d-flex flex-column flex-xl-row w-100 mb-1">
+				<p class="col col-xxl-6 p-0 mb-1 mb-xxl-0">
+					<span>Pipeline: </span>
+					<b>{{item.pipeline}}</b>
+				</p>
+
+				<p class="col col-xxl-6 p-0">
+					<span>Component: </span>
+					<b>{{item.component}}</b>
+				</p>
+			</div>
+
+			<div class="d-flex flex-column flex-xl-row w-100 mb-1">
+				<p class="col col-xxl-6 p-0 mb-1 mb-xxl-0">
+					<span>Errors count: </span>
+					<b>{{item.errorsCount}}</b>
+				</p>
+
+				<p class="col col-xxl-6 p-0">
+					<span>Appeared at: </span>
+					<b>{{item.firstErrorDate | dateTimeFormat}}(UTC)</b>
+				</p>
+			</div>
+
+			<div class="d-flex flex-row">
+				<p
+					class="mr-1 p-0 inline-block ellipsis-text"
+					[class.d-none]="!item.exampleShortErrorMessage">
+
+					{{item.exampleShortErrorMessage}}
+				</p>
+
+				<a
+					[routerLink]="[item.errorDetailsLink]"
+					[queryParams]="item.errorDetailsParams"
+					target="_blank">
+
+					Details...
+				</a>
+			</div>
+		</div>
+	</div>
+</div>

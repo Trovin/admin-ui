@@ -1,0 +1,31 @@
+.sub-accordion {
+	border-radius: 0;
+
+	.card {
+		background: none;
+		border-radius: 0;
+		margin-bottom: .3rem;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	.card-body {
+		padding: 0;
+	}
+
+	.card-header {
+		padding: .5rem;
+
+		&:before {
+			top: 10px;
+		}
+	}
+}
+
+.show-all-btn.load {
+	.refresh {
+		display: inline-block !important;
+	}
+}

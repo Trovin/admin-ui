@@ -1,0 +1,99 @@
+<form
+	#alarmConfigForm
+	ngNativeValidate
+	class="d-flex flex-column flex-xl-row align-items-start mb-4"
+	(submit)="submit()">
+
+	<div class="d-flex flex-column col-xl-10 col-xxxl-6 p-0">
+		<div class="d-flex flex-column d-flex flex-wrap">
+			<div class="d-flex flex-column flex-xl-row align-items-xl-center">
+				<label
+					for="search"
+					class="col-xl-2 col-form-label text-xl-right">
+
+					<b>
+						Search:
+					</b>
+				</label>
+
+				<div class="input-group p-2">
+					<label
+						for="search"
+						class="input-group-prepend">
+
+						<i class="fa fa-search input-group-text"></i>
+					</label>
+
+					<input
+						id="search"
+						class="form-control auto-height radius-none"
+						type="text"
+						placeholder="Search by substring in the SQL"
+						[disabled]="loading"
+						[ngModelOptions]="{standalone: true}"
+						[(ngModel)]="params.search"
+						(change)="changeSearch($event.target.value)">
+				</div>
+			</div>
+
+			<div class="d-flex flex-column flex-xl-row align-items-xl-center">
+				<label class="col-xl-2 col-form-label text-xl-right">
+					<b>
+						Filter by:
+					</b>
+				</label>
+
+				<div class="d-flex flex-column flex-md-row  align-items-start align-items-md-center p-2 relative">
+					<dropdown-item-picker
+						e2e="date-range-column-type"
+						class="inline-block mb-2 mb-md-0"
+						[search]="false"
+						[disabled]="loading"
+						[withRadioBtn]="true"
+						[fixedWidth]="true"
+						[defaultValue]="defaultDateRangeColumnType"
+						[data]="dateRangeColumnTypes"
+						(paramsChanged)="dateRangeColumnTypeChanged($event[0].value)">
+					</dropdown-item-picker>
+					<span class="d-none d-md-inline-block pl-1 pr-1 bold">=</span>
+					<material-date-range
+						class="date-range"
+						[data]="dates"
+						[disabled]="loading"
+						[exclude]="exclude"
+						[defaultData]="defaultDates"
+						(valuesChanged)="applyDates($event)">
+					</material-date-range>
+				</div>
+			</div>
+		</div>
+
+		<div class="offset-xl-2 pl-2 pr-2">
+			<date-range-ui
+				[dateRange]="params.dateRange"
+				[dateFrom]="params.dateFrom"
+				[dateTo]="params.dateTo">
+			</date-range-ui>
+		</div>
+	</div>
+
+	<div class="btn-group p-2">
+		<button
+			e2e="apply"
+			class="btn btn-default rounded"
+			type="submit"
+			[disabled]="loading">
+
+			Apply
+		</button>
+		<button
+			e2e="reset"
+			class="btn btn-link"
+			type="button"
+			[disabled]="loading"
+			(click)="reset()">
+
+			Reset
+		</button>
+	</div>
+</form>

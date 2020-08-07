@@ -1,0 +1,31 @@
+$spinner-line: 2px;
+$spinner-size: 36px;
+
+.preloader {
+	height: $spinner-size;
+	width: $spinner-size;
+	position: relative;
+
+	&:before {
+		content: '';
+		display: block;
+		position: absolute;
+		left: 0; top: 0;
+		height: 100%;
+		width: 100%;
+		animation: rotation 2s linear infinite;
+		border: 2px solid;
+		border-top: 1px solid transparent;
+		border-radius: 100%;
+	}
+
+	.icon {
+		line-height: 1;
+		animation: wink 1s ease-in-out infinite alternate;
+	}
+
+	.badge {
+		position: absolute;
+		left: -0.2rem;
+	}
+}

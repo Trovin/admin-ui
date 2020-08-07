@@ -1,0 +1,243 @@
+<div class="mb-4">
+	<page-header
+		title="Unknown fields"
+		linkToWiki="https://wiki.go.akamai-access.com/display/BI/Unknown+fields">
+
+
+		<ng-template #pageHeaderSubTitle>
+			This is a list of fields that are present in files but not mapped to any field in datamart. Usually these are the fields that appeared recently.
+		</ng-template>
+
+		<ng-template #pageHeaderContent>
+			<form
+				class="d-flex align-items-center col-12 col-xl-6 col-xxl-4"
+				ngNativeValidate
+				(submit)="fetch()">
+
+				<span class="mr-1">Filter by status:</span>
+
+				<div class="flex-grow-1">
+					<dropdown-item-picker
+						#dropdownItemPickers
+						class="d-block w-100"
+						[search]="false"
+						[withRadioBtn]="true"
+						[fixedWidth]="false"
+						[data]="filterByOptions"
+						(paramsChanged)="changedFilterByOption($event[0])">
+					</dropdown-item-picker>
+				</div>
+
+				<button
+					type="submit"
+					class="btn btn-dark btn-sm p-2 ml-3"
+					title="Refresh"
+					[disabled]="loading">
+
+					<i
+						e2e="refresh"
+						class="fa fa-refresh"
+						[class.fa-spin]="loading">
+					</i>
+
+					Refresh
+				</button>
+			</form>
+		</ng-template>
+	</page-header>
+</div>
+
+
+<div class="relative">
+	<div *ngIf="loading">
+		<div
+			e2e="loading-shade"
+			class="bhn-loading-shade p-4">
+			<i
+				e2e="loader"
+				class="fa fa-pulse fa-spinner fa-2x"></i>
+		</div>
+	</div>
+
+	<accordion>
+		<accordion-group *ngFor="let item of items; let i = index">
+			<div class="card mb-1">
+				<accordion-header class="card-header mb-0">
+					<button class="btn p-0 d-flex w-100 bold">
+						<div class="w-100 text-left">
+							<b>{{ item.sourceApplication }}</b>
+						</div>
+
+						<div class="col-5 col-lg-3 p-0 d-flex justify-content-between">
+							<div class="w-100 pl-1 pr-1 text-info text-left text-nowrap small">
+								<b>Total: {{ item.total }}</b>
+							</div>
+
+							<div class="w-100 pl-1 pr-1 text-success text-left text-nowrap small">
+								<b><i class="fa fa-eye mr-1"></i> {{ item.reviewedCount }}</b>
+							</div>
+
+							<div class="w-100 pl-1 pr-1 text-danger text-left text-nowrap small">
+								<b><i class="fa fa-eye-slash mr-1"></i> {{ item.total - item.reviewedCount }}</b>
+							</div>
+						</div>
+					</button>
+				</accordion-header>
+
+				<accordion-content>
+					<div class="card-body">
+						<accordion class="sub-accordion">
+							<accordion-group
+								*ngFor="let event of item.eventIds"
+								class="card">
+
+								<accordion-header class="card-header">
+									<button class="btn p-0 d-flex w-100 bold btn-sm">{{ event.eventId }}</button>
+								</accordion-header>
+
+								<accordion-content>
+									<ng-template accordionContentLazy>
+										<input
+											#listSize
+											type="hidden"
+											[(ngModel)]="amountItemsDisplayed">
+
+										<div class="table-responsive relative">
+											<table class="table table-hover table-lg table-striped m-0">
+												<thead>
+													<tr>
+														<th class="text-left align-middle border-none">Not mapped field</th>
+														<th class="text-left align-middle border-none">Sample file in Flattened bucket</th>
+														<th class="text-left align-middle border-none">Comment</th>
+														<th class="text-center align-middle border-none">
+															Appeared Date
+															<p class="help-block text-muted small">({{timezone}})</p>
+														</th>
+														<th class="text-center align-middle border-none">Reviewer</th>
+														<th class="text-center align-middle border-none text-nowrap">Review Status</th>
+														<th class="text-center align-middle border-none">Redshift schema name</th>
+														<th class="text-center align-middle border-none text-nowrap">Redshift table name</th>
+													</tr>
+												</thead>
+
+												<tbody>
+													<tr *ngFor="let field of event.fields | slice:0:listSize.value;">
+														<td
+															e2e="json-path"
+															class="align-middle bold">
+															{{field.jsonPath}}
+														</td>
+
+														<td
+															e2e="object-key"
+															class="align-middle pre-wrap-text small w-25">
+															{{field.objectKey}}
+
+															<a
+																e2e="find-on-s3"
+																class="ml-1 text-nowrap"
+																[href]="s3UrIBuilder.buildS3Url(field.bucket, field.objectKey)"
+																target="_blank">
+																<i class="fa fa-external-link mr-1"></i>
+															</a>
+														</td>
+
+														<td
+															e2e="comment"
+															class="align-middle pre-wrap-text fixed-width w-25">
+
+															<not-mapped-fields-comment
+																[id]="field.id"
+																[message]="field.comment">
+															</not-mapped-fields-comment>
+														</td>
+
+														<td
+															e2e="created-timestamp"
+															class="align-middle text-center min-width">
+
+															{{field.createdTimestamp | dateTimeFormat}}
+														</td>
+
+														<td
+															e2e="reviewer"
+															class="text-center align-middle min-width">
+
+															<ng-template
+																[ngIf]="!field.reviewer"
+																[ngIfElse]="reviwed">
+
+																-
+															</ng-template>
+															<ng-template #reviwed>
+																{{field.reviewer}}
+															</ng-template>
+														</td>
+
+														<td class="align-middle text-center">
+															<ng-template
+																[ngIf]="!field.reviewed"
+																[ngIfElse]="elseBlock">
+
+																<p class="text-danger text-nowrap">
+																	Not Reviewed
+																</p>
+															</ng-template>
+															<ng-template #elseBlock>
+																<p class="text-success">
+																	Reviewed
+																</p>
+															</ng-template>
+
+															<switch-control
+																*permissions="{ container: containers.UNKNOWN_FIELDS, permissions: [permission.UPDATE] }"
+																[active]="field.reviewed"
+																[disabled]="field.reviewLoading"
+																[loading]="field.reviewLoading"
+																(changed)="toggleReview($event, field)">
+															</switch-control>
+														</td>
+
+														<td class="text-center">{{field.redshiftTableName}}</td>
+
+														<td class="text-center">{{field.redshiftSchemaName}}</td>
+													</tr>
+
+													<tr *ngIf="listSize.value < event.fields.length">
+														<td
+															colspan="7"
+															class="p-0">
+
+															<button
+																class="btn btn-secondary btn-sm btn-block radius-none show-all-btn"
+																type="button"
+																(click)="showAll($event.target, listSize, event.fields.length)">
+
+																<i class="fa fa-refresh fa-spin d-none refresh"></i>
+
+																Show all
+															</button>
+														</td>
+													</tr>
+
+													<tr *ngIf="!event.fields.length && !loading">
+														<td
+															e2e="no-data"
+															colspan="7">
+
+															No data.
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</ng-template>
+								</accordion-content>
+							</accordion-group>
+						</accordion>
+					</div>
+				</accordion-content>
+			</div>
+		</accordion-group>
+	</accordion>
+</div>

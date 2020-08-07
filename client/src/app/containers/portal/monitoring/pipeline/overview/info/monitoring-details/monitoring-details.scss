@@ -1,0 +1,25 @@
+:host ::ng-deep ul,
+ol {
+	list-style: none;
+
+	li:before {
+		margin-right: 10px;
+		padding-left: 10px;
+	}
+}
+
+:host ::ng-deep ul li:before {
+	content: '\2022';
+}
+
+:host ::ng-deep ol {
+	counter-reset: item;
+
+	& li {
+		counter-increment: item;
+
+		&:before {
+			content: counter(item) ". ";
+		}
+	}
+}

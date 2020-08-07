@@ -1,0 +1,129 @@
+
+
+<nav class="navbar navbar-expand-md navbar-light fixed-top">
+	<div
+		class="dropdown-select-backdrop navbar-backdrop"
+		[class.open]="isNavOpen"
+		(click)="toggleNavigation()">
+	</div>
+
+	<div class="container justify-content-md-start">
+		<div class="p-0 d-md-none">
+			<button
+				*ngIf="authenticated"
+				type="button"
+				class="navbar-toggler collapsed"
+				data-toggle="collapse"
+				data-target="#navbarCollapse"
+				aria-controls="navbarCollapse"
+				aria-expanded="false"
+				aria-label="Toggle navigation"
+				(click)="toggleNavigation()">
+
+				<span class="navbar-toggler-icon"></span>
+			</button>
+		</div>
+
+		<div
+			e2e="header-logo"
+			class="logo-wrap p-0 mr-md-3">
+
+			<span class="navbar-brand d-flex align-items-center p-0 m-0">
+				<img src="../../../../assets/i/logo-public.png" class="logo img-responsive inline-block"/>
+				<span class="brand-text d-none d-md-inline-block">
+					Galaxy
+				</span>
+			</span>
+		</div>
+
+		<div
+			*ngIf="authenticated"
+			class="navbar-collapse collapse"
+			[class.show]="isNavOpen">
+
+			<ul class="navbar-nav">
+				<li
+					*permissions="{ container: containers.DASHBOARD, permissions: [permission.VIEW] }"
+					class="nav-item">
+
+					<a
+						e2e="admin-dashboard"
+						class="nav-link" href="{{host + '/portal/dashboard'}}">Admin Dashboard</a>
+				</li>
+			</ul>
+		</div>
+
+		<div
+			*ngIf="!authenticated"
+			class="nav-item dropdown p-0 text-right ml-md-auto cursor-pointer">
+
+			<a
+				e2e="login-with-okta"
+				href="javascript:void(0)"
+				(click)="login()">
+
+				Login with Okta
+			</a>
+		</div>
+
+		<div
+			*ngIf="authenticated"
+			class="nav-item dropdown col-4 p-0 text-right ml-md-auto"
+			dropdown>
+
+			<a
+				href="javascript:void(0)"
+				id="button-basic"
+				dropdownToggle
+				class="dropdown-toggle block ellipsis-text cursor-pointer"
+				aria-controls="dropdown-basic">
+
+				<span class="userName inline-block">
+					{{userName}}
+				</span>
+			</a>
+			<ul id="dropdown-basic"
+				*dropdownMenu
+				class="dropdown-menu dropdown-menu-right"
+				role="menu"
+				aria-labelledby="button-basic">
+
+				<li role="menuitem">
+					<a
+						href="{{host + '/portal/user/details'}}"
+						alt="Account details"
+						class="dropdown-item">
+
+						<i class="fa fa-user mr-2"></i>
+						<span>Account details</span>
+					</a>
+				</li>
+
+				<li
+					*permissions="{ container: containers.SUBSCRIPTIONS, permissions: [permission.VIEW] }"
+					role="menuitem">
+
+					<a
+						href="{{host + '/portal/user/notification-subscriptions'}}"
+						alt="Account details"
+						class="dropdown-item">
+
+						<i class="fa fa-file-text mr-2"></i>
+						<span>Notification Subscriptions</span>
+					</a>
+				</li>
+
+				<li role="menuitem">
+					<a
+						href="javascript:void(0)"
+						class="dropdown-item"
+						(click)="logout()">
+
+						<i class="fa fa-sign-out mr-2"></i>
+						<span>Logout</span>
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+</nav>

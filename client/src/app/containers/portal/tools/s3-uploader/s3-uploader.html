@@ -1,0 +1,199 @@
+<page-header
+	class="block mb-4"
+	title="S3 Uploader"
+	linkToWiki="https://wiki.go.akamai-access.com/display/BI/S3+Uploader">
+
+	<ng-template #pageHeaderSubTitle>
+		This page allows to upload files to certain S3 buckets and path. It may have file validation, depending on the bucket and path.
+	</ng-template>
+</page-header>
+
+<div class="uploader-form d-flex flex-column flex-lg-row align-items-stretch">
+	<div class="col-lg-6 col-xs-12 p-0 pr-4">
+		<data-form
+			[stateParams]="params"
+			(changed)="setFormParams($event)">
+		</data-form>
+	</div>
+
+	<div
+		*permissions="{ container: containers.S3_UPLOADER_TOOL, permissions: [permission.CREATE] }"
+		class="flex-fill mt-3 mt-lg-0">
+
+		<div
+			class="h-100 d-flex flex-column upload-file-box justify-content-center align-items-center p-2 drag-and-drop-box"
+			[disabled]="!params.bucket || !params.path"
+			[uploadDragAndDrop]= "uploadFiles"
+			[uploadValidation]="uploaderValidate"
+			(fileValidation)="updateValidateResult($event)"
+			(onUpload)="upload($event)">
+
+			<small
+				*ngIf="uploaderValidate.fileNames || uploaderValidate.fileExtension"
+				class="text-info">
+
+				<i class="fa fa-lg fa-exclamation-circle"></i>
+					The selected path has a check for the name and file extension.
+				<a
+					class="ml-1"
+					href="javascript:void(0)"
+					(click)="openModal(uploaderValidate)">
+
+					See all rules
+				</a>
+			</small>
+
+			<small
+				*ngIf="!this.params.bucket || !this.params.path"
+				class="text-info">
+
+				<i class="fa fa-arrow-circle-o-left"></i>
+				Choose bucket and path to upload
+			</small>
+
+			<div
+				[class.d-none]="!params.bucket || !params.path"
+				class="mt-2">
+
+				<label
+					class="btn btn-primary btn-file cursor-pointer"
+					[class.btn-light]="!params.bucket || !params.path">
+
+					Upload file
+
+					<input
+						e2e="upload"
+						class="d-none"
+						name="file"
+						multiple
+						type="file"
+						[uploadFileInput]= "uploadFiles"
+						[uploadValidation]="uploaderValidate"
+						(fileValidation)="updateValidateResult($event)"
+						(onUpload)="upload($event)">
+				</label>
+				<span class="ml-2 small text-secondary">or drag and drop file here</span>
+			</div>
+		</div>
+
+		<div
+			*ngIf="!validateResult.isFileNameValid && validateResult.isFileExtensionValid"
+			class="text-danger small mt-2">
+
+			Filename doesn't match
+		</div>
+
+		<div
+			*ngIf="!validateResult.isFileExtensionValid && validateResult.isFileNameValid"
+			class="text-danger small mt-2">
+
+			File extension doesn't match
+		</div>
+
+		<div
+			*ngIf="!validateResult.isFileExtensionValid && !validateResult.isFileNameValid"
+			class="text-danger small mt-2">
+
+			Filename and extension don't match
+		</div>
+	</div>
+</div>
+
+<div class="d-flex flex-column flex-lg-row align-items-start mt-4">
+	<div class="col-lg-6 col-xs-12 p-0 pr-4">
+		<files-list
+			[stateParams]="params"
+			(changed)="changeListParams($event)">
+		</files-list>
+	</div>
+
+	<div class="col-lg-6 col-xs-12 p-0">
+		<upload-files
+			class="d-flex flex-column w-100"
+			#uploadFiles>
+
+			<upload-file-item
+				*ngFor="let file of uploadFiles.files; let i = index"
+				class="d-flex w-100"
+				[file]="file"
+				[validate]="uploaderValidate.validation"
+				[path]="params.path"
+				[bucket]="params.bucket"
+				(uploaded)="composeParams(params)">
+			</upload-file-item>
+		</upload-files>
+	</div>
+</div>
+
+<div
+	class="modal fade"
+	bsModal
+	#modalRef="bs-modal"
+	tabindex="-1"
+	role="dialog">
+
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title pull-left">Validation Rules</h4>
+				<button
+					type="button"
+					class="close pull-right"
+					aria-label="Close"
+					(click)="modalRef.hide()">
+
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body p-3">
+				<table class="table table-xl table-hover table-bordered m-0">
+					<tbody>
+						<tr>
+							<td>
+								Extension(s):
+							</td>
+
+							<td>
+								<div
+									*ngFor="let extension of uploaderValidate.fileExtension;"
+									class="bold mr-1">
+
+									{{extension}}
+								</div>
+
+								<div
+									*ngIf="!uploaderValidate.fileExtension"
+									class="bold mr-1">
+
+									any
+								</div>
+							</td>
+						</tr>
+
+						<tr>
+							<td>
+								File name(s):
+							</td>
+
+							<td>
+								<div
+									*ngFor="let name of uploaderValidate.fileNames;"
+									class="bold">
+
+									{{name}}
+								</div>
+
+								<div
+									*ngIf="!uploaderValidate.fileNames"
+									class="bold mr-1">
+
+									any
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

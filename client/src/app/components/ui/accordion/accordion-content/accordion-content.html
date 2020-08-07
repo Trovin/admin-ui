@@ -1,0 +1,7 @@
+<div
+	*ngIf="isOpen"
+	class="overflow-hidden block">
+
+	<ng-template [ngTemplateOutlet]="lazyContent && lazyContent.content"></ng-template>
+	<ng-content></ng-content>
+</div>
