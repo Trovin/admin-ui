@@ -1,5 +1,0 @@
-export enum ReconFilter {
-	ALL = 'ALL',
-	MISSING_ONLY = 'MISSING_ONLY',
-	RECON_ERRORS_ONLY = 'RECON_ERRORS_ONLY'
-}
